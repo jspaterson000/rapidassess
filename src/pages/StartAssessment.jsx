@@ -8,6 +8,7 @@ import { auditLogger, AUDIT_ACTIONS } from "@/lib/audit";
 import { notifications } from "@/lib/notifications";
 import { createPageUrl } from "@/utils";
 import { ArrowLeft } from "lucide-react";
+import { FileText } from "lucide-react";
 
 import AssessmentStepper from "../components/assessment/AssessmentStepper";
 import Step1_SelectJob from "../components/assessment/Step1_SelectJob";
@@ -82,6 +83,7 @@ export default function StartAssessment() {
               pds_document_id: jobData.pds_document_id,
               event_details: {
                 event_type: jobData.event_type || '',
+                pds_document_id: jobData.pds_document_id || '',
                 damage_description: '',
                 cause_description: '',
                 owner_maintenance_status: ''
@@ -244,7 +246,8 @@ export default function StartAssessment() {
         return (
           <Step2_EventDetails
             eventDetails={assessmentData.event_details}
-            updateData={(eventDetails) => updateAssessmentData('event_details', eventDetails)}
+            pdsDocumentId={assessmentData.pds_document_id}
+            updateData={updateAssessmentData}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -439,6 +442,21 @@ export default function StartAssessment() {
                           notifications.info(`${type.replace(/_/g, ' ')} analysis complete`);
                         }}
                       />
+            {/* Job Context Header - Show when job is pre-selected */}
+            {selectedJob && currentStep > 0 && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-blue-900">Assessing: {selectedJob.claim_number}</h3>
+                    <p className="text-sm text-blue-700">{selectedJob.customer_name} • {selectedJob.property_address}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
                     )}
                   </div>
                 )}

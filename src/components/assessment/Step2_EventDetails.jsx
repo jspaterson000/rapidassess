@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PdsDocument } from '@/api/entities';
 import { FileText, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-export default function Step2_EventDetails({ eventDetails, updateData, onNext, onBack }) {
+export default function Step2_EventDetails({ eventDetails, pdsDocumentId, updateData, onNext, onBack }) {
   const [pdsDocs, setPdsDocs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,13 +25,19 @@ export default function Step2_EventDetails({ eventDetails, updateData, onNext, o
   }, []);
 
   const handleChange = (field, value) => {
-    const updatedEventDetails = { ...eventDetails, [field]: value };
-    updateData(updatedEventDetails);
+    if (field === 'pds_document_id') {
+      // Handle PDS document ID separately since it's stored at assessment level
+      updateData('pds_document_id', value);
+    } else {
+      // Handle other event detail fields
+      const updatedEventDetails = { ...eventDetails, [field]: value };
+      updateData('event_details', updatedEventDetails);
+    }
   };
 
   const isFormValid = () => {
     return (
-      eventDetails.pds_document_id &&
+      pdsDocumentId &&
       eventDetails.event_type &&
       eventDetails.damage_description?.trim() &&
       eventDetails.cause_description?.trim() &&
@@ -61,7 +67,7 @@ export default function Step2_EventDetails({ eventDetails, updateData, onNext, o
               <div className="h-11 bg-gray-100 rounded-lg animate-pulse"></div>
             ) : (
               <Select
-                value={eventDetails.pds_document_id || ''}
+                value={pdsDocumentId || ''}
                 onValueChange={(value) => handleChange('pds_document_id', value)}
               >
                 <SelectTrigger className="h-11">
@@ -76,7 +82,7 @@ export default function Step2_EventDetails({ eventDetails, updateData, onNext, o
                 </SelectContent>
               </Select>
             )}
-          </div>
+            {pdsDocumentId && <CheckCircle2 className="w-4 h-4 text-green-600" />}
 
           <div className="space-y-3">
             <Label className="flex items-center gap-2 text-gray-900 font-medium">
