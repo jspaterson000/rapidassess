@@ -132,9 +132,6 @@ export default function ReportsPage() {
               })}
             </div>
           )}
-    </div>
-  );
-}
 
           {!loading && assessments.length === 0 && (
             <div className="text-center py-16 w-full col-span-full animate-fade-in-up">
@@ -149,3 +146,6 @@ export default function ReportsPage() {
           <AdvancedReports />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
