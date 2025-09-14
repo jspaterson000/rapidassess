@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PdsDocument } from '@/api/entities';
 import { FileText, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-export default function Step2_EventDetails({ eventDetails, pdsDocumentId, updateData, updateAssessmentData, onNext, onBack }) {
+export default function Step2_EventDetails({ eventDetails, updateData, onNext, onBack }) {
   const [pdsDocs, setPdsDocs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,12 +25,13 @@ export default function Step2_EventDetails({ eventDetails, pdsDocumentId, update
   }, []);
 
   const handleChange = (field, value) => {
-    updateData({ ...eventDetails, [field]: value });
+    const updatedEventDetails = { ...eventDetails, [field]: value };
+    updateData(updatedEventDetails);
   };
 
   const isFormValid = () => {
     return (
-      pdsDocumentId &&
+      eventDetails.pds_document_id &&
       eventDetails.event_type &&
       eventDetails.damage_description?.trim() &&
       eventDetails.cause_description?.trim() &&
@@ -60,8 +61,8 @@ export default function Step2_EventDetails({ eventDetails, pdsDocumentId, update
               <div className="h-11 bg-gray-100 rounded-lg animate-pulse"></div>
             ) : (
               <Select
-                value={pdsDocumentId || ''}
-                onValueChange={(value) => updateAssessmentData('pds_document_id', value)}
+                value={eventDetails.pds_document_id || ''}
+                onValueChange={(value) => handleChange('pds_document_id', value)}
               >
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select PDS document..." />

@@ -45,6 +45,7 @@ export default function StartAssessment() {
   const [user, setUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [policyReviewResult, setPolicyReviewResult] = useState(null);
+  const [selectedJob, setSelectedJob] = useState(null);
   const [assessmentData, setAssessmentData] = useState(() => ({
     job_id: new URLSearchParams(location.search).get('jobId') || null,
     pds_document_id: null,
@@ -67,8 +68,30 @@ export default function StartAssessment() {
         const currentUser = await User.me();
         setUser(currentUser);
         setAssessmentData(prev => ({ ...prev, assessor_id: currentUser.id }));
-        if (new URLSearchParams(location.search).get('jobId')) {
-          setCurrentStep(1); // Skip job selection if jobId is in URL
+        
+        // Check if jobId is provided in URL
+        const jobId = new URLSearchParams(location.search).get('jobId');
+        if (jobId) {
+          try {
+            // Load the job data and skip to event details
+            const jobData = await Job.get(jobId);
+            setSelectedJob(jobData);
+            setAssessmentData(prev => ({
+              ...prev,
+              job_id: jobId,
+              pds_document_id: jobData.pds_document_id,
+              event_details: {
+                event_type: jobData.event_type || '',
+                damage_description: '',
+                cause_description: '',
+                owner_maintenance_status: ''
+              }
+            }));
+            setCurrentStep(1); // Skip job selection and go to event details
+          } catch (error) {
+            console.error("Error loading job:", error);
+            notifications.error('Failed to load job details');
+          }
         }
       } catch (e) {
         console.error("User not found");
@@ -94,9 +117,15 @@ export default function StartAssessment() {
   };
 
   const handleJobSelect = (job) => {
+    setSelectedJob(job);
     updateAssessmentData('job_id', job.id);
     updateAssessmentData('pds_document_id', job.pds_document_id); // Update pds_document_id
-    updateAssessmentData('event_details', { ...assessmentData.event_details, event_type: job.event_type });
+    updateAssessmentData('event_details', {
+      event_type: job.event_type || '',
+      damage_description: '',
+      cause_description: '',
+      owner_maintenance_status: ''
+    });
     handleNext();
   };
 
@@ -215,7 +244,7 @@ export default function StartAssessment() {
         return (
           <Step2_EventDetails
             eventDetails={assessmentData.event_details}
-            onUpdate={(eventDetails) => updateAssessmentData('event_details', eventDetails)}
+            updateData={(eventDetails) => updateAssessmentData('event_details', eventDetails)}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -223,8 +252,8 @@ export default function StartAssessment() {
       case 2:
         return (
           <Step3_DamageAreas
-            damageAreas={assessmentData.damage_areas}
-            onUpdate={(damageAreas) => updateAssessmentData('damage_areas', damageAreas)}
+            data={assessmentData.damage_areas}
+            updateData={(damageAreas) => updateAssessmentData('damage_areas', damageAreas)}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -234,8 +263,8 @@ export default function StartAssessment() {
            <Step4_Attachments
             photos={assessmentData.photos}
             documents={assessmentData.documents}
-            onPhotosUpdate={(photos) => updateAssessmentData('photos', photos)}
-            onDocumentsUpdate={(documents) => updateAssessmentData('documents', documents)}
+            updatePhotos={(photos) => updateAssessmentData('photos', photos)}
+            updateDocuments={(documents) => updateAssessmentData('documents', documents)}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -243,7 +272,7 @@ export default function StartAssessment() {
       case 4:
         return (
           <Step5_Review
-            assessmentData={assessmentData}
+            data={assessmentData}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -251,7 +280,7 @@ export default function StartAssessment() {
       case 5:
         return (
           <Step6_PolicyReview
-            assessmentData={assessmentData}
+            data={assessmentData}
             onPolicyReview={handlePolicyReview}
             onBack={handleBack}
           />
@@ -259,8 +288,9 @@ export default function StartAssessment() {
       case 6:
         return (
           <Step7_AdditionalInfo
-            additionalInfoRequests={assessmentData.additional_info_requests}
-            onUpdate={(additionalInfo) => updateAssessmentData('additional_info_requests', additionalInfo)}
+            data={assessmentData}
+            policyResult={policyReviewResult}
+            updateData={updateAssessmentData}
             onComplete={handleAdditionalInfoComplete}
             onBack={handleBack}
           />
@@ -268,8 +298,8 @@ export default function StartAssessment() {
       case 7:
         return (
           <Step8_ScopeOfWorks
-            scopeOfWorks={assessmentData.scope_of_works}
-            onUpdate={(scopeOfWorks) => updateAssessmentData('scope_of_works', scopeOfWorks)}
+            data={assessmentData.scope_of_works}
+            updateData={(scopeOfWorks) => updateAssessmentData('scope_of_works', scopeOfWorks)}
             onComplete={handleScopeComplete}
             onBack={handleBack}
           />
@@ -277,7 +307,7 @@ export default function StartAssessment() {
       case 8:
         return (
           <Step9_ReportGeneration
-            assessmentData={assessmentData}
+            data={assessmentData}
             onComplete={handleReportComplete}
             onBack={handleBack}
           />
