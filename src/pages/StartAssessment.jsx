@@ -434,6 +434,11 @@ export default function StartAssessment() {
                   <div className="space-y-6">
                     <MobileAssessmentCapture
                       onPhotoCapture={(photo) => {
+                {/* Side Panel with Tools */}
+                {currentStep > 0 && (
+                  <div className="xl:col-span-1 space-y-6">
+                    <MobileAssessmentCapture
+                      onPhotoCapture={(photo) => {
                         updateAssessmentData('photos', [...assessmentData.photos, photo.url]);
                         notifications.success('Photo captured');
                       }}
