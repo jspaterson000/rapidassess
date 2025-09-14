@@ -374,11 +374,8 @@ export default function StartAssessment() {
 
             {/* Content */}
             <div className="p-6 md:p-8">
-              <div className="content-enter">
-                {renderStep()}
-              </div>
               <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-                <div className="xl:col-span-3">
+                <div className="xl:col-span-3 content-enter">
                   {renderStep()}
                 </div>
                 
