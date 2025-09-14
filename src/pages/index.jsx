@@ -20,6 +20,16 @@ import ArchivedJobs from "./ArchivedJobs";
 
 import ManageTeam from "./ManageTeam";
 
+import Login from "./Login";
+
+import Login from "./Login";
+
+import Login from "./Login";
+
+import Login from "./Login";
+
+import Login from "./Login";
+
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
@@ -43,6 +53,16 @@ const PAGES = {
     ArchivedJobs: ArchivedJobs,
     
     ManageTeam: ManageTeam,
+    
+    Login: Login,
+    
+    Login: Login,
+    
+    Login: Login,
+    
+    Login: Login,
+    
+    Login: Login,
     
 }
 
