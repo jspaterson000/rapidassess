@@ -19,6 +19,7 @@ function App() {
       await User.me()
       setIsAuthenticated(true)
     } catch (error) {
+      console.log('User not authenticated, redirecting to login page')
       setIsAuthenticated(false)
     } finally {
       setIsLoading(false)
