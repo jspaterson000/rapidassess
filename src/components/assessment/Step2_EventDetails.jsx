@@ -82,7 +82,6 @@ export default function Step2_EventDetails({ eventDetails, pdsDocumentId, update
                 </SelectContent>
               </Select>
             )}
-            {pdsDocumentId && <CheckCircle2 className="w-4 h-4 text-green-600" />}
           </div>
 
           <div className="space-y-3">

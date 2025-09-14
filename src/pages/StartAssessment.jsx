@@ -409,7 +409,23 @@ export default function StartAssessment() {
             <div className="p-6 md:p-8">
               <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
                 <div className="xl:col-span-3 content-enter">
-                  {renderStep()}
+                  <>
+                    {/* Job Context Header - Show when job is pre-selected */}
+                    {selectedJob && currentStep > 0 && (
+                      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                            <FileText className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-blue-900">Assessing: {selectedJob.claim_number}</h3>
+                            <p className="text-sm text-blue-700">{selectedJob.customer_name} • {selectedJob.property_address}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {renderStep()}
+                  </>
                 </div>
                 
                 {/* Side Panel with Tools */}
@@ -442,21 +458,6 @@ export default function StartAssessment() {
                           notifications.info(`${type.replace(/_/g, ' ')} analysis complete`);
                         }}
                       />
-            {/* Job Context Header - Show when job is pre-selected */}
-            {selectedJob && currentStep > 0 && (
-              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-blue-900">Assessing: {selectedJob.claim_number}</h3>
-                    <p className="text-sm text-blue-700">{selectedJob.customer_name} • {selectedJob.property_address}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
                     )}
                   </div>
                 )}
