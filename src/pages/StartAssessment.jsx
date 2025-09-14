@@ -427,7 +427,6 @@ export default function StartAssessment() {
                       </div>
                     )}
                     {renderStep()}
-                  </>
                 </div>
                 
                 {/* Side Panel with Tools */}
