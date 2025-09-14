@@ -4,6 +4,8 @@ import { User } from "@/api/entities";
 import { Job } from "@/api/entities";
 import { Assessment } from "@/api/entities";
 import { Company } from "@/api/entities";
+import { analytics } from "@/lib/analytics";
+import { notifications } from "@/lib/notifications";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
@@ -32,6 +34,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { JobTrendChart, PerformanceMetricsChart } from "@/components/analytics/AdvancedCharts";
+import EnhancedCalendar from "@/components/ui/enhanced-calendar";
+import OfflineSync from "@/components/offline/OfflineSync";
 import BookAppointmentDialog from "../components/jobs/BookAppointmentDialog";
 import DeclineJobDialog from "../components/jobs/DeclineJobDialog";
 import { format, formatDistanceToNow, isToday, isTomorrow, isYesterday, isThisWeek, isWithinInterval, addDays, startOfWeek, endOfWeek, subWeeks, startOfDay, endOfDay } from 'date-fns';
@@ -215,6 +220,8 @@ export default function Dashboard() {
   const [userAssessments, setUserAssessments] = useState([]); // New state for user's assessments
   const [loading, setLoading] = useState(true);
   const [jobStatusData, setJobStatusData] = useState([]);
+  const [trendData, setTrendData] = useState([]);
+  const [performanceData, setPerformanceData] = useState([]);
   const [jobToBook, setJobToBook] = useState(null);
   const [jobToDecline, setJobToDecline] = useState(null);
 
@@ -341,6 +348,22 @@ export default function Dashboard() {
         value, 
         key 
       })));
+
+      // Load analytics data
+      try {
+        const [jobTrends, performanceMetrics] = await Promise.all([
+          analytics.getJobTrends(userData.company_id, 30),
+          analytics.getJobMetrics(userData.company_id, 30)
+        ]);
+        setTrendData(jobTrends);
+        setPerformanceData([
+          { name: 'Total Jobs', value: performanceMetrics.total },
+          { name: 'Completed', value: performanceMetrics.completed },
+          { name: 'In Progress', value: performanceMetrics.inProgress }
+        ]);
+      } catch (error) {
+        console.error("Error loading analytics:", error);
+      }
 
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -493,8 +516,14 @@ export default function Dashboard() {
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left Column - Task Lists */}
-        <div className="lg:col-span-2 space-y-8">
+        {/* Left Column - Task Lists and Analytics */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* Analytics Charts */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <JobTrendChart data={trendData} title="Job Trends (30 days)" />
+            <PerformanceMetricsChart data={performanceData} title="Performance Overview" />
+          </div>
           
           <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl animate-fade-in-up">
             <CardHeader>
@@ -747,7 +776,15 @@ export default function Dashboard() {
 
         {/* Right Column - Workflow Metrics with user-specific data */}
         <div className="animate-fade-in-up animate-stagger-3">
-          <WorkflowMetrics userJobs={userJobs} userAssessments={userAssessments} />
+          <div className="space-y-6">
+            <WorkflowMetrics userJobs={userJobs} userAssessments={userAssessments} />
+            <OfflineSync />
+            <EnhancedCalendar 
+              appointments={userJobs.filter(job => job.appointment_date)}
+              onDateSelect={(date) => console.log('Date selected:', date)}
+              onAppointmentClick={(apt) => console.log('Appointment clicked:', apt)}
+            />
+          </div>
         </div>
       </div>
 

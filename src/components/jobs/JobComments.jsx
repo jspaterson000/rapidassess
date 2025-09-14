@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Comment } from '@/api/entities';
 import { User } from '@/api/entities';
 import { Notification } from '@/api/entities';
+import { auditLogger, AUDIT_ACTIONS } from '@/lib/audit';
+import { notifications } from '@/lib/notifications';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, MessageSquare, AtSign, Search } from 'lucide-react';
@@ -79,6 +81,14 @@ export default function JobComments({ job }) {
                 mentioned_user_ids
             });
 
+            // Log audit trail
+            await auditLogger.log('comment_created', {
+                user_id: currentUser.id,
+                resource_type: 'job',
+                resource_id: job.id,
+                changes: { comment_content: newComment }
+            });
+
             // Send notifications for mentions
             for (const userId of mentioned_user_ids) {
                 if (userId !== currentUser.id) { // Don't notify yourself
@@ -93,11 +103,13 @@ export default function JobComments({ job }) {
                 }
             }
 
+            notifications.success('Comment posted successfully');
             setNewComment('');
             setMentionedUsers([]);
             fetchData();
         } catch (error) {
             console.error("Error posting comment:", error);
+            notifications.error('Failed to post comment');
         } finally {
             setPosting(false);
         }

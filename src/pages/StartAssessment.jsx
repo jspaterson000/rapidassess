@@ -4,6 +4,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Assessment } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Job } from "@/api/entities";
+import { auditLogger, AUDIT_ACTIONS } from "@/lib/audit";
+import { notifications } from "@/lib/notifications";
 import { createPageUrl } from "@/utils";
 import { ArrowLeft } from "lucide-react";
 
@@ -18,6 +20,9 @@ import Step7_AdditionalInfo from "../components/assessment/Step7_AdditionalInfo"
 import Step8_ScopeOfWorks from "../components/assessment/Step8_ScopeOfWorks";
 import Step9_ReportGeneration from "../components/assessment/Step9_ReportGeneration";
 import Step10_Submission from "../components/assessment/Step10_Submission";
+import MobileAssessmentCapture from "../components/mobile/MobileAssessmentCapture";
+import QualityControls from "../components/quality/QualityControls";
+import EnhancedAIAnalysis from "../components/ai/EnhancedAIAnalysis";
 
 const steps = [
   "Select Job", 
@@ -136,6 +141,14 @@ export default function StartAssessment() {
       // Create the assessment with the enhanced data including scope and total
       const createdAssessment = await Assessment.create(finalAssessmentData);
       
+      // Log audit trail
+      await auditLogger.logAssessmentAction(
+        AUDIT_ACTIONS.ASSESSMENT_COMPLETED, 
+        createdAssessment.id, 
+        user.id, 
+        finalAssessmentData
+      );
+      
       let newJobStatus = 'assessed';
       if (policyReviewResult?.recommendation === 'additional_info_needed') {
         newJobStatus = 'pending_completion';
@@ -153,9 +166,13 @@ export default function StartAssessment() {
         });
       }
       
+      // Show success notification
+      notifications.success('Assessment submitted successfully');
+      
       navigate(createPageUrl("Dashboard")); // Navigate to Dashboard after successful submission
     } catch (error) {
       console.error("Error submitting assessment:", error);
+      notifications.error('Failed to submit assessment');
       alert("Failed to submit assessment. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -359,6 +376,44 @@ export default function StartAssessment() {
             <div className="p-6 md:p-8">
               <div className="content-enter">
                 {renderStep()}
+              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                <div className="xl:col-span-3">
+                  {renderStep()}
+                </div>
+                
+                {/* Side Panel with Tools */}
+                {currentStep > 0 && (
+                  <div className="space-y-6">
+                    <MobileAssessmentCapture
+                      onPhotoCapture={(photo) => {
+                        updateAssessmentData('photos', [...assessmentData.photos, photo.url]);
+                        notifications.success('Photo captured');
+                      }}
+                      onVideoCapture={(video) => {
+                        updateAssessmentData('documents', [...assessmentData.documents, video.url]);
+                        notifications.success('Video recorded');
+                      }}
+                      className="xl:block hidden"
+                    />
+                    
+                    {currentStep >= 4 && (
+                      <QualityControls
+                        assessmentData={assessmentData}
+                        onQualityCheck={(score) => console.log('Quality score:', score)}
+                      />
+                    )}
+                    
+                    {currentStep >= 3 && (
+                      <EnhancedAIAnalysis
+                        assessmentData={assessmentData}
+                        onAnalysisComplete={(type, result) => {
+                          console.log('AI Analysis complete:', type, result);
+                          notifications.info(`${type.replace(/_/g, ' ')} analysis complete`);
+                        }}
+                      />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

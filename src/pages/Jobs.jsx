@@ -2,10 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { Job } from "@/api/entities";
 import { User } from "@/api/entities";
+import { auditLogger, AUDIT_ACTIONS } from "@/lib/audit";
+import { notifications } from "@/lib/notifications";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import DataTable from "@/components/ui/data-table";
 import {
   Plus,
   Search,
@@ -46,6 +50,8 @@ export default function JobsPage() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
+
   useEffect(() => {
     const init = async () => {
         await loadUserAndJobs();
@@ -84,14 +90,22 @@ export default function JobsPage() {
 
   const handleCreateJob = async (jobData) => {
     try {
-      await Job.create({
+      const newJob = await Job.create({
         ...jobData,
         company_id: user?.company_id
       });
+      
+      // Log audit trail
+      await auditLogger.logJobAction(AUDIT_ACTIONS.JOB_CREATED, newJob.id, user.id, jobData);
+      
+      // Show success notification
+      notifications.success('Job created successfully');
+      
       await loadJobs();
       setShowCreateDialog(false);
     } catch (error) {
       console.error("Error creating job:", error);
+      notifications.error('Failed to create job');
     }
   };
 
@@ -130,17 +144,20 @@ export default function JobsPage() {
 
   const handleAssignmentComplete = async () => {
     await loadJobs(); // Refresh jobs list
+    notifications.success('Job assignment updated');
     setShowAssignDialog(false); // Close dialog
     setSelectedJobForAssignment(null); // Clear selected job
   };
 
   const handleBookingComplete = async () => {
     await loadJobs();
+    notifications.success('Appointment booked successfully');
     setJobToBook(null);
   };
 
   const handleDeclineComplete = async () => {
     await loadJobs(); // Refresh jobs list
+    notifications.info('Job declined and returned to pool');
     setJobToDecline(null); // Close dialog
   };
 
@@ -199,6 +216,53 @@ export default function JobsPage() {
   };
 
   const canManageJobs = user && (user.user_role === 'company_admin' || user.user_role === 'manager' || user.user_role === 'platform_admin');
+
+  // Table columns for data table view
+  const tableColumns = [
+    {
+      key: 'claim_number',
+      header: 'Claim Number',
+      sortable: true,
+      render: (value) => <span className="font-medium">{value}</span>
+    },
+    {
+      key: 'customer_name',
+      header: 'Customer',
+      sortable: true
+    },
+    {
+      key: 'property_address',
+      header: 'Address',
+      sortable: true,
+      render: (value) => <span className="truncate max-w-xs">{value}</span>
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (value) => (
+        <Badge className={getStatusColor(value)}>
+          {getStatusDisplayText(value)}
+        </Badge>
+      )
+    },
+    {
+      key: 'priority',
+      header: 'Priority',
+      sortable: true,
+      render: (value) => (
+        <Badge className={getPriorityColor(value)}>
+          {value}
+        </Badge>
+      )
+    },
+    {
+      key: 'created_date',
+      header: 'Created',
+      sortable: true,
+      render: (value) => format(new Date(value), 'MMM d, yyyy')
+    }
+  ];
 
   const renderPrimaryAction = (job) => {
     if (job.status === 'awaiting_insurer') {
@@ -267,6 +331,22 @@ export default function JobsPage() {
                     </Button>
                 </Link>
             )}
+            <div className="flex rounded-lg border border-slate-200 p-1">
+              <Button
+                variant={viewMode === 'cards' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('cards')}
+              >
+                Cards
+              </Button>
+              <Button
+                variant={viewMode === 'table' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('table')}
+              >
+                Table
+              </Button>
+            </div>
             <Button
               onClick={() => setShowCreateDialog(true)}
               className="interactive-button bg-slate-800 hover:bg-slate-900 text-white"
@@ -293,126 +373,140 @@ export default function JobsPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl h-80 loading-shimmer"></div>
-          ))}
-        </div>
+        viewMode === 'cards' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl h-80 loading-shimmer"></div>
+            ))}
+          </div>
+        ) : (
+          <div className="h-96 bg-white rounded-lg loading-shimmer"></div>
+        )
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredJobs.map((job, index) => {
-            const assignedTimeText = getAssignedTimeText(job.time_assigned);
-            const isMyJob = user && job.assigned_to === user.id;
-            return (
-            <Card key={job.id} className={`interactive-card bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 flex flex-col justify-between animate-fade-in-up animate-stagger-${(index % 4) + 1}`}>
-              <div>
-                <div className="flex justify-between items-start mb-3 flex-wrap gap-y-2">
-                  <div className="flex flex-col gap-2 flex-grow min-w-[60%]">
-                    <p className="text-lg font-bold text-slate-800 tracking-tight">{job.claim_number}</p>
-                    {assignedTimeText && (
-                      <Badge variant="outline" className="text-xs text-slate-600 bg-slate-100 border-slate-300 self-start">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {assignedTimeText}
+        viewMode === 'cards' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredJobs.map((job, index) => {
+              const assignedTimeText = getAssignedTimeText(job.time_assigned);
+              const isMyJob = user && job.assigned_to === user.id;
+              return (
+              <Card key={job.id} className={`interactive-card bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 flex flex-col justify-between animate-fade-in-up animate-stagger-${(index % 4) + 1}`}>
+                <div>
+                  <div className="flex justify-between items-start mb-3 flex-wrap gap-y-2">
+                    <div className="flex flex-col gap-2 flex-grow min-w-[60%]">
+                      <p className="text-lg font-bold text-slate-800 tracking-tight">{job.claim_number}</p>
+                      {assignedTimeText && (
+                        <Badge variant="outline" className="text-xs text-slate-600 bg-slate-100 border-slate-300 self-start">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {assignedTimeText}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex gap-1.5 flex-shrink-0">
+                      <Badge variant="outline" className={`${getStatusColor(job.status)} border font-medium text-xs px-2 py-0.5`}>
+                        {getStatusDisplayText(job.status)}
                       </Badge>
+                      <Badge variant="outline" className={`${getPriorityColor(job.priority)} border font-medium text-xs px-2 py-0.5`}>
+                        {job.priority}
+                      </Badge>
+                      {isMyJob && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setJobToDecline(job)}
+                          className="text-slate-400 hover:text-red-500 hover:bg-red-50 h-6 w-6 ml-1"
+                          title="Decline this job"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5 text-sm text-slate-600">
+                    <div className="flex items-center gap-3">
+                      <UserIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <span className="font-medium text-slate-700 truncate">{job.customer_name}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <span className="truncate">{job.property_address}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <span className="truncate">{job.event_type} • {new Date(job.date_of_loss).toLocaleDateString()}</span>
+                    </div>
+                    {job.appointment_date && (
+                      <div className="flex items-center gap-2 text-xs text-green-800 bg-green-50 p-1.5 rounded-md border border-green-200">
+                          <Calendar className="w-3 h-3 flex-shrink-0" />
+                          <span className="font-medium truncate">Booked: {format(new Date(job.appointment_date), 'd MMM, p')}</span>
+                      </div>
+                    )}
+                    {job.customer_phone && (
+                      <div className="flex items-center gap-3">
+                        <Phone className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span className="truncate">{job.customer_phone}</span>
+                      </div>
+                    )}
+                    {job.customer_email && (
+                      <div className="flex items-center gap-3">
+                        <Mail className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span className="truncate">{job.customer_email}</span>
+                      </div>
                     )}
                   </div>
-                  <div className="flex gap-1.5 flex-shrink-0">
-                    <Badge variant="outline" className={`${getStatusColor(job.status)} border font-medium text-xs px-2 py-0.5`}>
-                      {getStatusDisplayText(job.status)}
-                    </Badge>
-                    <Badge variant="outline" className={`${getPriorityColor(job.priority)} border font-medium text-xs px-2 py-0.5`}>
-                      {job.priority}
-                    </Badge>
-                    {isMyJob && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setJobToDecline(job)}
-                        className="text-slate-400 hover:text-red-500 hover:bg-red-50 h-6 w-6 ml-1"
-                        title="Decline this job"
-                      >
-                        <X className="w-3 h-3" />
+                </div>
+
+                <div className="space-y-2 pt-5">
+                  {/* Primary Action - Full Width */}
+                  {renderPrimaryAction(job)}
+
+                  {/* Secondary Actions - Split Layout */}
+                  <div className="flex gap-2">
+                    <Link to={createPageUrl(`JobDetails?id=${job.id}`)} className="flex-1">
+                      <Button variant="outline" size="sm" className="interactive-button w-full text-slate-600 hover:text-slate-800 hover:bg-slate-50 py-1.5 text-xs">
+                        <FileText className="w-3 h-3 mr-1.5" />
+                        Details
                       </Button>
+                    </Link>
+                  </div>
+                   {canManageJobs && (
+                      <div className="flex-1 group">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleAssignJob(job)}
+                          className="interactive-button w-full py-1.5 text-xs relative overflow-hidden border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                        >
+                          {/* Show assignee name or "Assign" */}
+                          <div className="flex items-center justify-center gap-1.5 group-hover:opacity-0 transition-opacity duration-200">
+                            <UserIcon className="w-3 h-3" />
+                            <span className="truncate">
+                              {getAssigneeName(job.assigned_to) || 'Assign'}
+                            </span>
+                          </div>
+
+                          {/* Show "Re-assign" on hover */}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-100">
+                            <UserIcon className="w-3 h-3 mr-1" />
+                            <span>{job.assigned_to ? 'Re-assign' : 'Assign'}</span>
+                          </div>
+                        </Button>
+                      </div>
                     )}
-                  </div>
                 </div>
-
-                <div className="space-y-2.5 text-sm text-slate-600">
-                  <div className="flex items-center gap-3">
-                    <UserIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <span className="font-medium text-slate-700 truncate">{job.customer_name}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <span className="truncate">{job.property_address}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <span className="truncate">{job.event_type} • {new Date(job.date_of_loss).toLocaleDateString()}</span>
-                  </div>
-                  {job.appointment_date && (
-                    <div className="flex items-center gap-2 text-xs text-green-800 bg-green-50 p-1.5 rounded-md border border-green-200">
-                        <Calendar className="w-3 h-3 flex-shrink-0" />
-                        <span className="font-medium truncate">Booked: {format(new Date(job.appointment_date), 'd MMM, p')}</span>
-                    </div>
-                  )}
-                  {job.customer_phone && (
-                    <div className="flex items-center gap-3">
-                      <Phone className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                      <span className="truncate">{job.customer_phone}</span>
-                    </div>
-                  )}
-                  {job.customer_email && (
-                    <div className="flex items-center gap-3">
-                      <Mail className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                      <span className="truncate">{job.customer_email}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2 pt-5">
-                {/* Primary Action - Full Width */}
-                {renderPrimaryAction(job)}
-
-                {/* Secondary Actions - Split Layout */}
-                <div className="flex gap-2">
-                  <Link to={createPageUrl(`JobDetails?id=${job.id}`)} className="flex-1">
-                    <Button variant="outline" size="sm" className="interactive-button w-full text-slate-600 hover:text-slate-800 hover:bg-slate-50 py-1.5 text-xs">
-                      <FileText className="w-3 h-3 mr-1.5" />
-                      Details
-                    </Button>
-                  </Link>
-                </div>
-                 {canManageJobs && (
-                    <div className="flex-1 group">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleAssignJob(job)}
-                        className="interactive-button w-full py-1.5 text-xs relative overflow-hidden border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                      >
-                        {/* Show assignee name or "Assign" */}
-                        <div className="flex items-center justify-center gap-1.5 group-hover:opacity-0 transition-opacity duration-200">
-                          <UserIcon className="w-3 h-3" />
-                          <span className="truncate">
-                            {getAssigneeName(job.assigned_to) || 'Assign'}
-                          </span>
-                        </div>
-
-                        {/* Show "Re-assign" on hover */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-100">
-                          <UserIcon className="w-3 h-3 mr-1" />
-                          <span>{job.assigned_to ? 'Re-assign' : 'Assign'}</span>
-                        </div>
-                      </Button>
-                    </div>
-                  )}
-              </div>
-            </Card>
-            );
-          })}
-        </div>
+              </Card>
+              );
+            })}
+          </div>
+        ) : (
+          <DataTable
+            data={filteredJobs}
+            columns={tableColumns}
+            onRowClick={(job) => navigate(createPageUrl(`JobDetails?id=${job.id}`))}
+            searchable={false} // We have our own search
+            filterable={false} // We have our own filters
+          />
+        )
       )}
 
       {!loading && filteredJobs.length === 0 && (
