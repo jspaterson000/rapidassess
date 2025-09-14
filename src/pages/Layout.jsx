@@ -40,7 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import NotificationBell from "./components/layout/NotificationBell";
+import NotificationBell from "../components/layout/NotificationBell";
 
 
 const navigationItems = [
