@@ -108,12 +108,23 @@ export default function LoginPage({ onLoginSuccess }) {
           </form>
 
           <div className="mt-6 pt-6 border-t border-slate-200">
-            <p className="text-center text-sm text-slate-500">
-              Need help? Contact{' '}
-              <a href="mailto:app@base44.com" className="text-slate-700 hover:text-slate-900 font-medium">
-                app@base44.com
-              </a>
-            </p>
+            <div className="space-y-3 text-sm">
+              <p className="text-center text-slate-500 font-medium">Demo Accounts:</p>
+              <div className="space-y-2 bg-slate-50 p-3 rounded-lg">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Admin:</span>
+                  <span className="font-mono text-slate-800">admin@rapidassess.com / admin123</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Manager:</span>
+                  <span className="font-mono text-slate-800">manager@rapidassess.com / manager123</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Assessor:</span>
+                  <span className="font-mono text-slate-800">assessor@rapidassess.com / assessor123</span>
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
