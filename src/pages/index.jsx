@@ -22,14 +22,6 @@ import ManageTeam from "./ManageTeam";
 
 import Login from "./Login";
 
-import Login from "./Login";
-
-import Login from "./Login";
-
-import Login from "./Login";
-
-import Login from "./Login";
-
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
@@ -55,15 +47,6 @@ const PAGES = {
     ManageTeam: ManageTeam,
     
     Login: Login,
-    
-    Login: Login,
-    
-    Login: Login,
-    
-    Login: Login,
-    
-    Login: Login,
-    
 }
 
 function _getCurrentPage(url) {
