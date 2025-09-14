@@ -72,10 +72,12 @@ export default function StartAssessment() {
         
         // Check if jobId is provided in URL
         const jobId = new URLSearchParams(location.search).get('jobId');
+        console.log('Job ID from URL:', jobId); // Debug log
         if (jobId) {
           try {
             // Load the job data and skip to event details
             const jobData = await Job.get(jobId);
+            console.log('Loaded job data:', jobData); // Debug log
             setSelectedJob(jobData);
             setAssessmentData(prev => ({
               ...prev,
@@ -89,6 +91,7 @@ export default function StartAssessment() {
                 owner_maintenance_status: ''
               }
             }));
+            console.log('Setting current step to 1'); // Debug log
             setCurrentStep(1); // Skip job selection and go to event details
           } catch (error) {
             console.error("Error loading job:", error);
@@ -405,23 +408,21 @@ export default function StartAssessment() {
               <AssessmentStepper steps={getVisibleSteps()} currentStep={currentStep} />
             </div>
 
-            {/* Content */}
-            <div className="p-6 md:p-8">
-              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-                <div className="xl:col-span-3 content-enter">
-                  <>
-                    {/* Job Context Header - Show when job is pre-selected */}
-                    {selectedJob && currentStep > 0 && (
-                      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                            <FileText className="w-4 h-4 text-white" />
+                        {/* Job Context Header - Show when job is pre-selected */}
+                        {selectedJob && currentStep > 0 && (
+                          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                                <FileText className="w-4 h-4 text-white" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-blue-900">Assessing: {selectedJob.claim_number}</h3>
+                                <p className="text-sm text-blue-700">{selectedJob.customer_name} • {selectedJob.property_address}</p>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-blue-900">Assessing: {selectedJob.claim_number}</h3>
-                            <p className="text-sm text-blue-700">{selectedJob.customer_name} • {selectedJob.property_address}</p>
-                          </div>
-                        </div>
+                        )}
+                        {renderStep()}
                       </div>
                     )}
                     {renderStep()}
