@@ -55,7 +55,7 @@ export default function Step2_EventDetails({ eventDetails, updateData, onNext, o
             <Label className="flex items-center gap-2 text-gray-900 font-medium">
               <FileText className="w-4 h-4 text-blue-600" />
               PDS Document for Analysis
-              {pdsDocumentId && <CheckCircle2 className="w-4 h-4 text-green-600" />}
+              {eventDetails.pds_document_id && <CheckCircle2 className="w-4 h-4 text-green-600" />}
             </Label>
             {loading ? (
               <div className="h-11 bg-gray-100 rounded-lg animate-pulse"></div>
