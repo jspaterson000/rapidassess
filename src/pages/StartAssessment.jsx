@@ -408,32 +408,28 @@ export default function StartAssessment() {
               <AssessmentStepper steps={getVisibleSteps()} currentStep={currentStep} />
             </div>
 
-                        {/* Job Context Header - Show when job is pre-selected */}
-                        {selectedJob && currentStep > 0 && (
-                          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                                <FileText className="w-4 h-4 text-white" />
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-blue-900">Assessing: {selectedJob.claim_number}</h3>
-                                <p className="text-sm text-blue-700">{selectedJob.customer_name} • {selectedJob.property_address}</p>
-                              </div>
-                            </div>
+            <div className="p-6">
+              <div className="xl:grid xl:grid-cols-3 xl:gap-8">
+                <div className="xl:col-span-2">
+                  <>
+                    {/* Job Context Header - Show when job is pre-selected */}
+                    {selectedJob && currentStep > 0 && (
+                      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                            <FileText className="w-4 h-4 text-white" />
                           </div>
-                        )}
-                        {renderStep()}
+                          <div>
+                            <h3 className="font-semibold text-blue-900">Assessing: {selectedJob.claim_number}</h3>
+                            <p className="text-sm text-blue-700">{selectedJob.customer_name} • {selectedJob.property_address}</p>
+                          </div>
+                        </div>
                       </div>
                     )}
                     {renderStep()}
                   </>
                 </div>
                 
-                {/* Side Panel with Tools */}
-                {currentStep > 0 && (
-                  <div className="space-y-6">
-                    <MobileAssessmentCapture
-                      onPhotoCapture={(photo) => {
                 {/* Side Panel with Tools */}
                 {currentStep > 0 && (
                   <div className="xl:col-span-1 space-y-6">
