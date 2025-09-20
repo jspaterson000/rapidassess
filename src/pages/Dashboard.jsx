@@ -784,14 +784,12 @@ export default function Dashboard() {
           <div className="space-y-6">
             <WorkflowMetrics userJobs={userJobs} userAssessments={userAssessments} />
             <OfflineSync />
-            <div className="w-full">
-              <EnhancedCalendar 
-                appointments={userJobs.filter(job => job.appointment_date)}
-                onDateSelect={(date) => console.log('Date selected:', date)}
-                onAppointmentClick={(apt) => console.log('Appointment clicked:', apt)}
-                className="w-full"
-              />
-            </div>
+            <EnhancedCalendar 
+              appointments={userJobs.filter(job => job.appointment_date)}
+              onDateSelect={(date) => console.log('Date selected:', date)}
+              onAppointmentClick={(apt) => console.log('Appointment clicked:', apt)}
+              className="w-full"
+            />
           </div>
         </div>
       </div>
