@@ -42,7 +42,6 @@ export default function StartAssessment() {
   const [policyReviewResult, setPolicyReviewResult] = useState(null);
   const [assessmentData, setAssessmentData] = useState(() => ({
     job_id: new URLSearchParams(location.search).get('jobId') || null,
-    pds_document_id: null,
     assessor_id: null,
     event_details: {},
     damage_areas: [],
@@ -65,7 +64,6 @@ export default function StartAssessment() {
         
         const jobId = new URLSearchParams(location.search).get('jobId');
         if (jobId) {
-          // Load the job data and skip to step 1 (Event Details)
           try {
             const jobData = await Job.get(jobId);
             setAssessmentData(prev => ({
@@ -77,10 +75,9 @@ export default function StartAssessment() {
                 event_type: jobData.event_type 
               }
             }));
-            setCurrentStep(1); // Skip job selection and go to Event Details
+            setCurrentStep(1);
           } catch (error) {
             console.error("Error loading job:", error);
-            // If job loading fails, stay on job selection step
             setCurrentStep(0);
           }
         }
@@ -109,7 +106,7 @@ export default function StartAssessment() {
 
   const handleJobSelect = (job) => {
     updateAssessmentData('job_id', job.id);
-    updateAssessmentData('pds_document_id', job.pds_document_id); // Update pds_document_id
+    updateAssessmentData('pds_document_id', job.pds_document_id);
     updateAssessmentData('event_details', { ...assessmentData.event_details, event_type: job.event_type });
     handleNext();
   };
