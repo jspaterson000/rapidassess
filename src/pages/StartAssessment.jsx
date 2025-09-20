@@ -62,8 +62,27 @@ export default function StartAssessment() {
         const currentUser = await User.me();
         setUser(currentUser);
         setAssessmentData(prev => ({ ...prev, assessor_id: currentUser.id }));
-        if (new URLSearchParams(location.search).get('jobId')) {
-          setCurrentStep(1); // Skip job selection if jobId is in URL
+        
+        const jobId = new URLSearchParams(location.search).get('jobId');
+        if (jobId) {
+          // Load the job data and skip to step 1 (Event Details)
+          try {
+            const jobData = await Job.get(jobId);
+            setAssessmentData(prev => ({
+              ...prev,
+              job_id: jobData.id,
+              pds_document_id: jobData.pds_document_id,
+              event_details: { 
+                ...prev.event_details, 
+                event_type: jobData.event_type 
+              }
+            }));
+            setCurrentStep(1); // Skip job selection and go to Event Details
+          } catch (error) {
+            console.error("Error loading job:", error);
+            // If job loading fails, stay on job selection step
+            setCurrentStep(0);
+          }
         }
       } catch (e) {
         console.error("User not found");
