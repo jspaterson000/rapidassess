@@ -1,7 +1,7 @@
-import { supabase } from './supabase';
+import { supabase, isSupabaseConfigured } from './supabase';
 
 /**
- * Production-ready authentication service
+ * Production-ready authentication service with fallback support
  * Handles user registration, login, logout, and session management
  */
 
@@ -10,6 +10,10 @@ export class AuthService {
    * Register a new user with email and password
    */
   static async register({ email, password, fullName, phone, companyId, userRole = 'user' }) {
+    if (!isSupabaseConfigured) {
+      throw new Error('Authentication service not available');
+    }
+
     try {
       // Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -53,6 +57,10 @@ export class AuthService {
    * Sign in with email and password
    */
   static async signIn({ email, password }) {
+    if (!isSupabaseConfigured) {
+      throw new Error('Authentication service not available');
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -87,6 +95,10 @@ export class AuthService {
    * Sign out current user
    */
   static async signOut() {
+    if (!isSupabaseConfigured) {
+      return; // Gracefully handle when Supabase not configured
+    }
+
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -100,6 +112,10 @@ export class AuthService {
    * Get current user session and profile
    */
   static async getCurrentUser() {
+    if (!isSupabaseConfigured) {
+      return null;
+    }
+
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error) throw error;
@@ -125,6 +141,10 @@ export class AuthService {
    * Update user profile
    */
   static async updateProfile(userId, updates) {
+    if (!isSupabaseConfigured) {
+      throw new Error('Authentication service not available');
+    }
+
     try {
       const { data, error } = await supabase
         .from('users')
@@ -145,6 +165,10 @@ export class AuthService {
    * Request password reset
    */
   static async requestPasswordReset(email) {
+    if (!isSupabaseConfigured) {
+      throw new Error('Authentication service not available');
+    }
+
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`
@@ -162,6 +186,10 @@ export class AuthService {
    * Update password
    */
   static async updatePassword(newPassword) {
+    if (!isSupabaseConfigured) {
+      throw new Error('Authentication service not available');
+    }
+
     try {
       const { error } = await supabase.auth.updateUser({
         password: newPassword
@@ -199,6 +227,10 @@ export class AuthService {
    * Listen for auth state changes
    */
   static onAuthStateChange(callback) {
+    if (!isSupabaseConfigured) {
+      // Return a dummy subscription for mock mode
+      return { data: { subscription: { unsubscribe: () => {} } } };
+    }
     return supabase.auth.onAuthStateChange(callback);
   }
 }

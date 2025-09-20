@@ -6,6 +6,8 @@ import { User } from '@/api/entities'
 import LoginPage from '@/pages/Login'
 import { Loader2 } from 'lucide-react'
 import { logger } from '@/lib/logger'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { isSupabaseConfigured } from '@/lib/supabase'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null)
@@ -64,26 +66,43 @@ function App() {
     }
   }, [])
 
+  // Show configuration status in development
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.log('Supabase configured:', isSupabaseConfigured)
+      if (!isSupabaseConfigured) {
+        console.warn('Supabase not configured - using mock data. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to use real database.')
+      }
+    }
+  }, [])
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-slate-400 mx-auto mb-4" />
           <p className="text-slate-600">Loading...</p>
+          {!isSupabaseConfigured && (
+            <p className="text-xs text-amber-600 mt-2">Running in demo mode</p>
+          )}
         </div>
       </div>
     )
   }
 
   if (!isAuthenticated) {
-    return <LoginPage onLoginSuccess={handleLoginSuccess} />
+    return (
+      <ErrorBoundary>
+        <LoginPage onLoginSuccess={handleLoginSuccess} />
+      </ErrorBoundary>
+    )
   }
 
   return (
-    <>
+    <ErrorBoundary>
       <Pages />
       <Toaster />
-    </>
+    </ErrorBoundary>
   )
 }
 

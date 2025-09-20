@@ -1,7 +1,8 @@
-import { supabase } from './supabase';
+import { supabase, isSupabaseConfigured } from './supabase';
 
 /**
  * Production-ready database service with connection pooling and error handling
+ * Gracefully handles cases where Supabase is not configured
  */
 
 export class DatabaseService {
@@ -9,6 +10,10 @@ export class DatabaseService {
    * Execute a query with proper error handling
    */
   static async executeQuery(queryBuilder) {
+    if (!isSupabaseConfigured) {
+      throw new Error('Database service not available');
+    }
+
     try {
       const { data, error, count } = await queryBuilder;
       
@@ -30,6 +35,10 @@ export class DatabaseService {
   static createCrudService(tableName, validationSchema = null) {
     return {
       async list(filters = {}, orderBy = null, limit = null) {
+        if (!isSupabaseConfigured) {
+          throw new Error('Database service not available');
+        }
+
         let query = supabase.from(tableName).select('*');
         
         // Apply filters
@@ -69,6 +78,10 @@ export class DatabaseService {
       },
 
       async get(id) {
+        if (!isSupabaseConfigured) {
+          throw new Error('Database service not available');
+        }
+
         const result = await DatabaseService.executeQuery(
           supabase.from(tableName).select('*').eq('id', id).single()
         );
@@ -76,6 +89,10 @@ export class DatabaseService {
       },
 
       async create(data) {
+        if (!isSupabaseConfigured) {
+          throw new Error('Database service not available');
+        }
+
         // Validate data if schema provided
         if (validationSchema) {
           const validation = validationSchema.safeParse(data);
@@ -91,6 +108,10 @@ export class DatabaseService {
       },
 
       async update(id, data) {
+        if (!isSupabaseConfigured) {
+          throw new Error('Database service not available');
+        }
+
         // Validate data if schema provided
         if (validationSchema) {
           const validation = validationSchema.partial().safeParse(data);
@@ -106,6 +127,10 @@ export class DatabaseService {
       },
 
       async delete(id) {
+        if (!isSupabaseConfigured) {
+          throw new Error('Database service not available');
+        }
+
         const result = await DatabaseService.executeQuery(
           supabase.from(tableName).delete().eq('id', id).select().single()
         );
@@ -113,6 +138,10 @@ export class DatabaseService {
       },
 
       async count(filters = {}) {
+        if (!isSupabaseConfigured) {
+          throw new Error('Database service not available');
+        }
+
         let query = supabase.from(tableName).select('*', { count: 'exact', head: true });
         
         Object.entries(filters).forEach(([key, value]) => {
@@ -148,6 +177,10 @@ export class DatabaseService {
    * Health check
    */
   static async healthCheck() {
+    if (!isSupabaseConfigured) {
+      return false;
+    }
+
     try {
       const { data, error } = await supabase
         .from('users')

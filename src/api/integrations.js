@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -212,6 +212,13 @@ const getMockLLMResponse = (prompt, response_json_schema) => {
 
 // Real Supabase file upload implementation
 export const UploadPrivateFile = async ({ file }) => {
+  if (!isSupabaseConfigured) {
+    // Mock implementation for when Supabase is not configured
+    console.warn('Supabase not configured, using mock file upload');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate upload delay
+    return { file_uri: `mock://files/${Math.random().toString(36).substr(2, 9)}-${file.name}` };
+  }
+
   try {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
@@ -234,6 +241,13 @@ export const UploadPrivateFile = async ({ file }) => {
 
 // Real Supabase signed URL creation
 export const CreateFileSignedUrl = async ({ file_uri }) => {
+  if (!isSupabaseConfigured) {
+    // Mock implementation for when Supabase is not configured
+    console.warn('Supabase not configured, using mock signed URL');
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+    return { signed_url: `https://example.com/signed/${Math.random().toString(36).substr(2, 9)}` };
+  }
+
   try {
     const { data, error } = await supabase.storage
       .from('documents')
