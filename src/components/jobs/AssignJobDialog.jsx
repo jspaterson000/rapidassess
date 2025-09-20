@@ -44,12 +44,8 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
 Start: "${startLocation}"
 End: "${targetJob.property_address}"
 
-Return JSON:
-{
-  "distance_km": [number],
-  "travel_time_minutes": [number]
-}`,
-            add_context_from_internet: false, // Disable internet context for faster response
+Provide realistic estimates for Australian cities. Return the result as JSON.`,
+            add_context_from_internet: false,
             response_json_schema: {
                 type: "object",
                 properties: {

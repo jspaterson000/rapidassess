@@ -56,7 +56,7 @@ Based on your analysis of the PDS and the claim details, provide your response i
       
       const result = await InvokeLLM({
         prompt,
-        add_context_from_internet: true, // Use internet context to access the URL
+        add_context_from_internet: false, // Disable for better performance
         response_json_schema: {
           type: "object",
           properties: {
