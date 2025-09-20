@@ -378,11 +378,9 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
         
         <div className="space-y-3 py-2 max-h-[50vh] overflow-y-auto">
           {loading ? (
-            <SelectItem value="unassign">
-              <div className="text-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
-                <p className="text-slate-600 text-sm font-medium">Loading assessors...</p>
-              </div>
+            <div className="text-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
+              <p className="text-slate-600 text-sm font-medium">Loading assessors...</p>
             </div>
           ) : (
             <div className="space-y-2">
