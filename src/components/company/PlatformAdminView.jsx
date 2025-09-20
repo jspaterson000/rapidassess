@@ -55,10 +55,11 @@ function PdsUploadForm({ onUploadComplete }) {
           effective_date: new Date().toISOString().split('T')[0],
           file_uri,
         });
-        onUploadComplete();
+        await onUploadComplete();
       }
     } catch (error) {
       console.error("Error uploading PDS:", error);
+      alert("Failed to upload PDS document. Please try again.");
     } finally {
       setIsUploading(false);
     }
@@ -210,12 +211,16 @@ export default function PlatformAdminView({ user }) {
   const [pdsDocs, setPdsDocs] = useState([]);
 
   const loadData = async () => {
-    const [companiesData, pdsData] = await Promise.all([
-      Company.list(),
-      PdsDocument.list('-created_date')
-    ]);
-    setCompanies(companiesData);
-    setPdsDocs(pdsData);
+    try {
+      const [companiesData, pdsData] = await Promise.all([
+        Company.list(),
+        PdsDocument.list('-created_date')
+      ]);
+      setCompanies(companiesData);
+      setPdsDocs(pdsData);
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
   };
 
   useEffect(() => {

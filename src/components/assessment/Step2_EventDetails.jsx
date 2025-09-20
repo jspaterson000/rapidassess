@@ -16,10 +16,13 @@ export default function Step2_EventDetails({ eventDetails, onUpdate, onNext, onB
   useEffect(() => {
     const loadPds = async () => {
       try {
+        setLoading(true);
         const docs = await PdsDocument.list();
+        console.log("Loaded PDS documents:", docs); // Debug log
         setPdsDocs(docs);
       } catch (error) {
         console.error("Failed to load PDS documents:", error);
+        setPdsDocs([]); // Ensure empty array on error
       } finally {
         setLoading(false);
       }

@@ -39,7 +39,9 @@ export default function CreateJobDialog({ open, onClose, onSubmit }) {
     if (open) {
       const loadPds = async () => {
         try {
+          console.log("Loading PDS documents for job creation..."); // Debug log
           const docs = await PdsDocument.list();
+          console.log("PDS documents loaded:", docs); // Debug log
           setPdsDocs(docs);
         } catch (error) {
           console.error("Failed to load PDS documents:", error);
