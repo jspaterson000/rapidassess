@@ -2,7 +2,7 @@ import './App.css'
 import Pages from "@/pages/index.jsx"
 import { Toaster } from "@/components/ui/toaster"
 import { useState, useEffect } from 'react'
-import { User } from '@/api/entities'
+import { User } from '@/api/mockApi'
 import LoginPage from '@/pages/Login'
 import { Loader2 } from 'lucide-react'
 
