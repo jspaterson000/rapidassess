@@ -2,9 +2,10 @@ import './App.css'
 import Pages from "@/pages/index.jsx"
 import { Toaster } from "@/components/ui/toaster"
 import { useState, useEffect } from 'react'
-import { User } from '@/api/mockApi'
+import { User } from '@/api/entities'
 import LoginPage from '@/pages/Login'
 import { Loader2 } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null)
@@ -16,8 +17,13 @@ function App() {
 
   const checkAuthStatus = async () => {
     try {
-      await User.me()
-      setIsAuthenticated(true)
+      const user = await User.me()
+      if (user) {
+        setIsAuthenticated(true)
+        logger.info('User authenticated', { userId: user.id, email: user.email })
+      } else {
+        setIsAuthenticated(false)
+      }
     } catch (error) {
       console.log('User not authenticated, redirecting to login page')
       setIsAuthenticated(false)
@@ -28,7 +34,35 @@ function App() {
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true)
+    logger.auditLog('login_success')
   }
+
+  // Global error boundary
+  useEffect(() => {
+    const handleError = (event) => {
+      logger.error('Unhandled error', {
+        message: event.error?.message,
+        stack: event.error?.stack,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno
+      })
+    }
+
+    const handleRejection = (event) => {
+      logger.error('Unhandled promise rejection', {
+        reason: event.reason
+      })
+    }
+
+    window.addEventListener('error', handleError)
+    window.addEventListener('unhandledrejection', handleRejection)
+
+    return () => {
+      window.removeEventListener('error', handleError)
+      window.removeEventListener('unhandledrejection', handleRejection)
+    }
+  }, [])
 
   if (isLoading) {
     return (
