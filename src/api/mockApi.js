@@ -181,18 +181,87 @@ export const integrations = {
       }
       
       if (prompt.includes('policy') || prompt.includes('PDS')) {
+        // Extract key information from the prompt for more realistic responses
+        const eventType = prompt.match(/Event Type: ([^\\n]+)/)?.[1] || 'unknown';
+        const damageDesc = prompt.match(/Damage Description: ([^\\n]+)/)?.[1] || 'not provided';
+        const causeDesc = prompt.match(/Stated Cause: ([^\\n]+)/)?.[1] || 'not provided';
+        const maintenance = prompt.match(/Owner Maintenance Status: ([^\\n]+)/)?.[1] || 'not specified';
+        
+        // Generate more realistic responses based on the data
+        let recommendation = 'proceed';
+        let reasoning = '';
+        let additionalRequirements = [];
+        let confidence = 'high';
+        
+        // Analyze based on event type and details
+        if (eventType.includes('fire')) {
+          if (causeDesc.includes('electrical') || causeDesc.includes('faulty')) {
+            reasoning = 'Fire damage from electrical fault is covered under Section 2.1 of the policy. The cause appears to be accidental and not due to negligence.';
+            additionalRequirements = ['Electrical inspection report', 'Fire brigade report if available'];
+          } else if (damageDesc.toLowerCase().includes('test') || causeDesc.toLowerCase().includes('test')) {
+            recommendation = 'additional_info_needed';
+            reasoning = 'Insufficient information provided in damage and cause descriptions. More detailed assessment required to determine coverage eligibility.';
+            additionalRequirements = ['Detailed damage description', 'Clear explanation of cause', 'Supporting photographs', 'Professional assessment if required'];
+            confidence = 'low';
+          } else {
+            reasoning = 'Fire damage is covered under the policy terms. Cause appears to be accidental and within policy coverage.';
+          }
+        } else if (eventType.includes('storm')) {
+          reasoning = 'Storm damage including wind and hail is covered under Section 1.3 of the policy. Weather event is verifiable and damage is consistent with reported cause.';
+          if (damageDesc.toLowerCase().includes('test')) {
+            recommendation = 'additional_info_needed';
+            reasoning = 'Storm damage is generally covered, however insufficient detail provided in damage description requires further assessment.';
+            additionalRequirements = ['Detailed damage assessment', 'Weather bureau report for the date', 'Professional contractor quote'];
+            confidence = 'medium';
+          }
+        } else if (eventType.includes('escape_of_liquid')) {
+          if (maintenance === 'no' || maintenance === 'partial') {
+            recommendation = 'additional_info_needed';
+            reasoning = 'Water damage may be covered, however poor maintenance history requires insurer review to determine if damage was preventable.';
+            additionalRequirements = ['Maintenance records', 'Plumber inspection report', 'Age and condition assessment of plumbing'];
+            confidence = 'medium';
+          } else {
+            reasoning = 'Escape of liquid damage is covered under Section 1.5. Property appears well-maintained and damage is accidental.';
+          }
+        } else if (eventType.includes('impact')) {
+          reasoning = 'Impact damage from external sources is covered under Section 1.7 of the policy. Damage appears to be from sudden and accidental impact.';
+          additionalRequirements = ['Police report if applicable', 'Third party details if available'];
+        }
+        
+        // Handle insufficient information cases
+        if (damageDesc.toLowerCase().includes('test') || damageDesc === 'not provided' || 
+            causeDesc.toLowerCase().includes('test') || causeDesc === 'not provided') {
+          recommendation = 'additional_info_needed';
+          reasoning = 'Assessment contains insufficient information to make a coverage determination. Detailed descriptions of damage and cause are required for policy analysis.';
+          additionalRequirements = [
+            'Comprehensive damage description with specific details',
+            'Clear explanation of how the damage occurred',
+            'Supporting photographic evidence',
+            'Professional assessment if damage is extensive'
+          ];
+          confidence = 'low';
+        }
+        
         return {
-          recommendation: ['proceed', 'additional_info_needed', 'refer_to_insurer'][Math.floor(Math.random() * 3)],
-          reasoning: 'Based on policy analysis, this claim appears to meet coverage requirements.',
-          confidence_level: 'high',
+          recommendation,
+          reasoning,
+          confidence_level: confidence,
           pds_citations: [
             {
-              clause: 'Section 4.2 - Storm Damage',
-              text: 'Coverage includes damage from wind, hail, and falling objects',
-              relevance: 'Directly applicable to this storm damage claim'
+              clause: eventType.includes('storm') ? 'Section 1.3 - Storm Damage' :
+                     eventType.includes('fire') ? 'Section 2.1 - Fire Damage' :
+                     eventType.includes('escape_of_liquid') ? 'Section 1.5 - Escape of Liquid' :
+                     eventType.includes('impact') ? 'Section 1.7 - Impact Damage' :
+                     'Section 1.1 - General Coverage',
+              text: eventType.includes('storm') ? 'Coverage includes damage from wind, hail, and falling objects during weather events' :
+                    eventType.includes('fire') ? 'Coverage includes fire damage from accidental causes, electrical faults, and external ignition' :
+                    eventType.includes('escape_of_liquid') ? 'Coverage includes sudden and accidental escape of liquid from fixed pipes and appliances' :
+                    eventType.includes('impact') ? 'Coverage includes damage from sudden and accidental impact by external objects' :
+                    'General property damage coverage applies to sudden and accidental events',
+              relevance: `Directly applicable to this ${eventType.replace('_', ' ')} damage claim`
             }
           ],
-          additional_requirements: ['Provide contractor quotes', 'Submit building inspection report']
+          additional_requirements: additionalRequirements
         };
       }
       
