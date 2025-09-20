@@ -22,8 +22,6 @@ import ManageTeam from "./ManageTeam";
 
 import Login from "./Login";
 
-import CustomerPortal from "./CustomerPortal";
-
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
@@ -49,8 +47,6 @@ const PAGES = {
     ManageTeam: ManageTeam,
     
     Login: Login,
-    
-    CustomerPortal: CustomerPortal,
 }
 
 function _getCurrentPage(url) {
@@ -97,8 +93,6 @@ function PagesContent() {
                 <Route path="/ArchivedJobs" element={<ArchivedJobs />} />
                 
                 <Route path="/ManageTeam" element={<ManageTeam />} />
-                
-                <Route path="/CustomerPortal" element={<CustomerPortal />} />
                 
             </Routes>
         </Layout>

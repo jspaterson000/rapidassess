@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '@/api/entities';
-import AutomationRules from '@/components/workflow/AutomationRules';
 import PlatformAdminView from '../components/company/PlatformAdminView';
 import CompanyAdminView from '../components/company/CompanyAdminView';
 import StandardUserView from '../components/company/StandardUserView';
-import { Loader2, Settings, Zap } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2 } from 'lucide-react';
 
 export default function CompanyPage() {
   const [user, setUser] = useState(null);
@@ -46,26 +44,7 @@ export default function CompanyPage() {
       case 'platform_admin':
         return <PlatformAdminView user={user} />;
       case 'company_admin':
-        return (
-          <Tabs defaultValue="company" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="company">
-                <Settings className="w-4 h-4 mr-2" />
-                Company Settings
-              </TabsTrigger>
-              <TabsTrigger value="automation">
-                <Zap className="w-4 h-4 mr-2" />
-                Automation
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="company" className="mt-6">
-              <CompanyAdminView user={user} />
-            </TabsContent>
-            <TabsContent value="automation" className="mt-6">
-              <AutomationRules />
-            </TabsContent>
-          </Tabs>
-        );
+        return <CompanyAdminView user={user} />;
       case 'manager':
       case 'user':
       default:

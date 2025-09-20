@@ -4,11 +4,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Assessment } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Job } from "@/api/entities";
-import { auditLogger, AUDIT_ACTIONS } from "@/lib/audit";
-import { notifications } from "@/lib/notifications";
 import { createPageUrl } from "@/utils";
 import { ArrowLeft } from "lucide-react";
-import { FileText } from "lucide-react";
 
 import AssessmentStepper from "../components/assessment/AssessmentStepper";
 import Step1_SelectJob from "../components/assessment/Step1_SelectJob";
@@ -21,9 +18,6 @@ import Step7_AdditionalInfo from "../components/assessment/Step7_AdditionalInfo"
 import Step8_ScopeOfWorks from "../components/assessment/Step8_ScopeOfWorks";
 import Step9_ReportGeneration from "../components/assessment/Step9_ReportGeneration";
 import Step10_Submission from "../components/assessment/Step10_Submission";
-import MobileAssessmentCapture from "../components/mobile/MobileAssessmentCapture";
-import QualityControls from "../components/quality/QualityControls";
-import EnhancedAIAnalysis from "../components/ai/EnhancedAIAnalysis";
 
 const steps = [
   "Select Job", 
@@ -46,7 +40,6 @@ export default function StartAssessment() {
   const [user, setUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [policyReviewResult, setPolicyReviewResult] = useState(null);
-  const [selectedJob, setSelectedJob] = useState(null);
   const [assessmentData, setAssessmentData] = useState(() => ({
     job_id: new URLSearchParams(location.search).get('jobId') || null,
     pds_document_id: null,
@@ -69,34 +62,8 @@ export default function StartAssessment() {
         const currentUser = await User.me();
         setUser(currentUser);
         setAssessmentData(prev => ({ ...prev, assessor_id: currentUser.id }));
-        
-        // Check if jobId is provided in URL
-        const jobId = new URLSearchParams(location.search).get('jobId');
-        console.log('Job ID from URL:', jobId); // Debug log
-        if (jobId) {
-          try {
-            // Load the job data and skip to event details
-            const jobData = await Job.get(jobId);
-            console.log('Loaded job data:', jobData); // Debug log
-            setSelectedJob(jobData);
-            setAssessmentData(prev => ({
-              ...prev,
-              job_id: jobId,
-              pds_document_id: jobData.pds_document_id,
-              event_details: {
-                event_type: jobData.event_type || '',
-                pds_document_id: jobData.pds_document_id || '',
-                damage_description: '',
-                cause_description: '',
-                owner_maintenance_status: ''
-              }
-            }));
-            console.log('Setting current step to 1'); // Debug log
-            setCurrentStep(1); // Skip job selection and go to event details
-          } catch (error) {
-            console.error("Error loading job:", error);
-            notifications.error('Failed to load job details');
-          }
+        if (new URLSearchParams(location.search).get('jobId')) {
+          setCurrentStep(1); // Skip job selection if jobId is in URL
         }
       } catch (e) {
         console.error("User not found");
@@ -122,15 +89,9 @@ export default function StartAssessment() {
   };
 
   const handleJobSelect = (job) => {
-    setSelectedJob(job);
     updateAssessmentData('job_id', job.id);
     updateAssessmentData('pds_document_id', job.pds_document_id); // Update pds_document_id
-    updateAssessmentData('event_details', {
-      event_type: job.event_type || '',
-      damage_description: '',
-      cause_description: '',
-      owner_maintenance_status: ''
-    });
+    updateAssessmentData('event_details', { ...assessmentData.event_details, event_type: job.event_type });
     handleNext();
   };
 
@@ -175,14 +136,6 @@ export default function StartAssessment() {
       // Create the assessment with the enhanced data including scope and total
       const createdAssessment = await Assessment.create(finalAssessmentData);
       
-      // Log audit trail
-      await auditLogger.logAssessmentAction(
-        AUDIT_ACTIONS.ASSESSMENT_COMPLETED, 
-        createdAssessment.id, 
-        user.id, 
-        finalAssessmentData
-      );
-      
       let newJobStatus = 'assessed';
       if (policyReviewResult?.recommendation === 'additional_info_needed') {
         newJobStatus = 'pending_completion';
@@ -200,13 +153,9 @@ export default function StartAssessment() {
         });
       }
       
-      // Show success notification
-      notifications.success('Assessment submitted successfully');
-      
       navigate(createPageUrl("Dashboard")); // Navigate to Dashboard after successful submission
     } catch (error) {
       console.error("Error submitting assessment:", error);
-      notifications.error('Failed to submit assessment');
       alert("Failed to submit assessment. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -249,8 +198,7 @@ export default function StartAssessment() {
         return (
           <Step2_EventDetails
             eventDetails={assessmentData.event_details}
-            pdsDocumentId={assessmentData.pds_document_id}
-            updateData={updateAssessmentData}
+            onUpdate={(eventDetails) => updateAssessmentData('event_details', eventDetails)}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -258,8 +206,8 @@ export default function StartAssessment() {
       case 2:
         return (
           <Step3_DamageAreas
-            data={assessmentData.damage_areas}
-            updateData={(damageAreas) => updateAssessmentData('damage_areas', damageAreas)}
+            damageAreas={assessmentData.damage_areas}
+            onUpdate={(damageAreas) => updateAssessmentData('damage_areas', damageAreas)}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -269,8 +217,8 @@ export default function StartAssessment() {
            <Step4_Attachments
             photos={assessmentData.photos}
             documents={assessmentData.documents}
-            updatePhotos={(photos) => updateAssessmentData('photos', photos)}
-            updateDocuments={(documents) => updateAssessmentData('documents', documents)}
+            onPhotosUpdate={(photos) => updateAssessmentData('photos', photos)}
+            onDocumentsUpdate={(documents) => updateAssessmentData('documents', documents)}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -278,7 +226,7 @@ export default function StartAssessment() {
       case 4:
         return (
           <Step5_Review
-            data={assessmentData}
+            assessmentData={assessmentData}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -286,7 +234,7 @@ export default function StartAssessment() {
       case 5:
         return (
           <Step6_PolicyReview
-            data={assessmentData}
+            assessmentData={assessmentData}
             onPolicyReview={handlePolicyReview}
             onBack={handleBack}
           />
@@ -294,9 +242,8 @@ export default function StartAssessment() {
       case 6:
         return (
           <Step7_AdditionalInfo
-            data={assessmentData}
-            policyResult={policyReviewResult}
-            updateData={updateAssessmentData}
+            additionalInfoRequests={assessmentData.additional_info_requests}
+            onUpdate={(additionalInfo) => updateAssessmentData('additional_info_requests', additionalInfo)}
             onComplete={handleAdditionalInfoComplete}
             onBack={handleBack}
           />
@@ -304,8 +251,8 @@ export default function StartAssessment() {
       case 7:
         return (
           <Step8_ScopeOfWorks
-            data={assessmentData.scope_of_works}
-            updateData={(scopeOfWorks) => updateAssessmentData('scope_of_works', scopeOfWorks)}
+            scopeOfWorks={assessmentData.scope_of_works}
+            onUpdate={(scopeOfWorks) => updateAssessmentData('scope_of_works', scopeOfWorks)}
             onComplete={handleScopeComplete}
             onBack={handleBack}
           />
@@ -313,7 +260,7 @@ export default function StartAssessment() {
       case 8:
         return (
           <Step9_ReportGeneration
-            data={assessmentData}
+            assessmentData={assessmentData}
             onComplete={handleReportComplete}
             onBack={handleBack}
           />
@@ -408,61 +355,10 @@ export default function StartAssessment() {
               <AssessmentStepper steps={getVisibleSteps()} currentStep={currentStep} />
             </div>
 
-            <div className="p-6">
-              <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-                <div className="xl:col-span-2">
-                  <>
-                    {/* Job Context Header - Show when job is pre-selected */}
-                    {selectedJob && currentStep > 0 && (
-                      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                            <FileText className="w-4 h-4 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-blue-900">Assessing: {selectedJob.claim_number}</h3>
-                            <p className="text-sm text-blue-700">{selectedJob.customer_name} • {selectedJob.property_address}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    {renderStep()}
-                  </>
-                </div>
-                
-                {/* Side Panel with Tools */}
-                {currentStep > 0 && (
-                  <div className="xl:col-span-1 space-y-6">
-                    <MobileAssessmentCapture
-                      onPhotoCapture={(photo) => {
-                        updateAssessmentData('photos', [...assessmentData.photos, photo.url]);
-                        notifications.success('Photo captured');
-                      }}
-                      onVideoCapture={(video) => {
-                        updateAssessmentData('documents', [...assessmentData.documents, video.url]);
-                        notifications.success('Video recorded');
-                      }}
-                      className="xl:block hidden"
-                    />
-                    
-                    {currentStep >= 4 && (
-                      <QualityControls
-                        assessmentData={assessmentData}
-                        onQualityCheck={(score) => console.log('Quality score:', score)}
-                      />
-                    )}
-                    
-                    {currentStep >= 3 && (
-                      <EnhancedAIAnalysis
-                        assessmentData={assessmentData}
-                        onAnalysisComplete={(type, result) => {
-                          console.log('AI Analysis complete:', type, result);
-                          notifications.info(`${type.replace(/_/g, ' ')} analysis complete`);
-                        }}
-                      />
-                    )}
-                  </div>
-                )}
+            {/* Content */}
+            <div className="p-6 md:p-8">
+              <div className="content-enter">
+                {renderStep()}
               </div>
             </div>
           </div>

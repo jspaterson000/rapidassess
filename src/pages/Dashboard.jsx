@@ -4,8 +4,6 @@ import { User } from "@/api/entities";
 import { Job } from "@/api/entities";
 import { Assessment } from "@/api/entities";
 import { Company } from "@/api/entities";
-import { analytics } from "@/lib/analytics";
-import { notifications } from "@/lib/notifications";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
@@ -18,7 +16,7 @@ import {
   Activity,
   Target,
   MapPin,
-  Calendar as CalendarIcon,
+  Calendar,
   User as UserIcon,
   Phone,
   X,
@@ -34,11 +32,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar as DatePickerCalendar } from "@/components/ui/calendar";
-import OfflineSync from "@/components/offline/OfflineSync";
 import BookAppointmentDialog from "../components/jobs/BookAppointmentDialog";
 import DeclineJobDialog from "../components/jobs/DeclineJobDialog";
-import { JobTrendChart, PerformanceMetricsChart } from "@/components/analytics/AdvancedCharts";
 import { format, formatDistanceToNow, isToday, isTomorrow, isYesterday, isThisWeek, isWithinInterval, addDays, startOfWeek, endOfWeek, subWeeks, startOfDay, endOfDay } from 'date-fns';
 
 // Workflow Metrics Component - now receives user-filtered data
@@ -167,7 +162,7 @@ function WorkflowMetrics({ userJobs, userAssessments }) {
           <MetricCard
             title="Tomorrow"
             value={attendTomorrow}
-            icon={CalendarIcon}
+            icon={Calendar}
             color={{ bg: 'bg-purple-50', text: 'text-purple-600' }}
             description="Your appointments scheduled for tomorrow"
           />
@@ -220,143 +215,12 @@ export default function Dashboard() {
   const [userAssessments, setUserAssessments] = useState([]); // New state for user's assessments
   const [loading, setLoading] = useState(true);
   const [jobStatusData, setJobStatusData] = useState([]);
-  const [trendData, setTrendData] = useState([]);
-  const [performanceData, setPerformanceData] = useState([]);
   const [jobToBook, setJobToBook] = useState(null);
   const [jobToDecline, setJobToDecline] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     loadDashboardData();
   }, []);
-
-  // Get appointments for a specific date
-  const getAppointmentsForDate = (date) => {
-    return userJobs.filter(job => {
-      if (!job.appointment_date) return false;
-      const appointmentDate = new Date(job.appointment_date);
-      return appointmentDate.toDateString() === date.toDateString();
-    });
-  };
-
-  // Custom calendar component
-  const DashboardCalendar = () => {
-    const appointmentsForSelectedDate = getAppointmentsForDate(selectedDate);
-    
-    return (
-      <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-slate-600" />
-            Schedule Calendar
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <DatePickerCalendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            className="rounded-lg border-0 w-full"
-            classNames={{
-              months: "flex w-full flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-              month: "space-y-4 w-full flex flex-col",
-              caption: "flex justify-center pt-1 relative items-center",
-              caption_label: "text-sm font-medium",
-              nav: "space-x-1 flex items-center",
-              nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-              nav_button_previous: "absolute left-1",
-              nav_button_next: "absolute right-1",
-              table: "w-full border-collapse space-y-1",
-              head_row: "flex w-full",
-              head_cell: "text-slate-500 rounded-md w-full font-normal text-[0.8rem] flex-1 text-center",
-              row: "flex w-full mt-2",
-              cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 flex-1",
-              day: "h-9 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-slate-100 rounded-md transition-colors",
-              day_selected: "bg-slate-800 text-white hover:bg-slate-700",
-              day_today: "bg-slate-100 text-slate-900 font-semibold",
-              day_outside: "text-slate-400 opacity-50",
-              day_disabled: "text-slate-400 opacity-50",
-              day_hidden: "invisible",
-            }}
-            components={{
-              DayContent: ({ date }) => {
-                const dayAppointments = getAppointmentsForDate(date);
-                return (
-                  <div className="relative w-full h-full flex flex-col items-center justify-center">
-                    <span>{date.getDate()}</span>
-                    {dayAppointments.length > 0 && (
-                      <div className="absolute bottom-0 flex gap-0.5">
-                        {dayAppointments.slice(0, 3).map((apt, index) => (
-                          <div
-                            key={index}
-                            className={`w-1 h-1 rounded-full ${
-                              apt.priority === 'urgent' ? 'bg-red-500' :
-                              apt.priority === 'high' ? 'bg-orange-500' :
-                              apt.priority === 'medium' ? 'bg-yellow-500' :
-                              'bg-blue-500'
-                            }`}
-                          />
-                        ))}
-                        {dayAppointments.length > 3 && (
-                          <div className="w-1 h-1 rounded-full bg-slate-400" />
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-            }}
-          />
-          
-          {/* Selected Date Appointments */}
-          {appointmentsForSelectedDate.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="font-semibold text-slate-800">
-                {format(selectedDate, 'EEEE, MMMM d')}
-              </h4>
-              <div className="space-y-2">
-                {appointmentsForSelectedDate.map(job => (
-                  <div key={job.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-slate-800">{job.claim_number}</span>
-                      <span className="text-xs text-slate-500">
-                        {format(new Date(job.appointment_date), 'h:mm a')}
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-600">{job.customer_name}</p>
-                    <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
-                      <MapPin className="w-3 h-3" />
-                      <span className="truncate">{job.property_address}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Legend */}
-          <div className="flex flex-wrap gap-3 text-xs pt-2 border-t border-slate-200">
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-red-500 rounded-full" />
-              <span>Urgent</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-orange-500 rounded-full" />
-              <span>High</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-yellow-500 rounded-full" />
-              <span>Medium</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-blue-500 rounded-full" />
-              <span>Low</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -477,22 +341,6 @@ export default function Dashboard() {
         value, 
         key 
       })));
-
-      // Load analytics data
-      try {
-        const [jobTrends, performanceMetrics] = await Promise.all([
-          analytics.getJobTrends(userData.company_id, 30),
-          analytics.getJobMetrics(userData.company_id, 30)
-        ]);
-        setTrendData(jobTrends);
-        setPerformanceData([
-          { name: 'Total Jobs', value: performanceMetrics.total },
-          { name: 'Completed', value: performanceMetrics.completed },
-          { name: 'In Progress', value: performanceMetrics.inProgress }
-        ]);
-      } catch (error) {
-        console.error("Error loading analytics:", error);
-      }
 
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -618,7 +466,7 @@ export default function Dashboard() {
     // Default for awaiting_booking, new_job
     return (
         <Button size="sm" onClick={() => setJobToBook(job)} className="bg-slate-700 hover:bg-slate-800 text-white">
-            <CalendarIcon className="w-4 h-4 mr-2" />
+            <Calendar className="w-4 h-4 mr-2" />
             Book Customer
         </Button>
     );
@@ -633,7 +481,6 @@ export default function Dashboard() {
   }
 
   return (
-    <>
     <div className="p-6 md:p-10 min-h-screen space-y-8">
       {/* Header */}
       <header className="animate-fade-in-up">
@@ -644,21 +491,10 @@ export default function Dashboard() {
       </header>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left Column - Calendar */}
-        <div className="xl:col-span-2 space-y-6">
-          <DashboardCalendar />
-        </div>
-        
-        {/* Right Column - Task Lists */}
-        <div className="xl:col-span-3 space-y-6">
-          
-          {/* Analytics Charts */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <JobTrendChart data={trendData} title="Job Trends (30 days)" />
-            <PerformanceMetricsChart data={performanceData} title="Performance Overview" />
-          </div>
+        {/* Left Column - Task Lists */}
+        <div className="lg:col-span-2 space-y-8">
           
           <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl animate-fade-in-up">
             <CardHeader>
@@ -734,12 +570,12 @@ export default function Dashboard() {
                       <Activity className="w-4 h-4 text-slate-400 flex-shrink-0" />
                       <span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span>
                       <span className="text-slate-400">•</span>
-                      <CalendarIcon className="w-4 h-4 text-slate-400" />
+                      <Calendar className="w-4 h-4 text-slate-400" />
                       <span>{new Date(job.date_of_loss).toLocaleDateString()}</span>
                     </div>
                     {job.appointment_date && (
                         <div className="flex items-center gap-2 text-sm text-slate-600 font-medium bg-green-50 p-2 rounded-lg border border-green-200">
-                            <CalendarIcon className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <Calendar className="w-4 h-4 text-green-600 flex-shrink-0" />
                             <span>Booked for: {format(new Date(job.appointment_date), 'EEE, d MMM yyyy @ p')}</span>
                         </div>
                     )}
@@ -763,94 +599,90 @@ export default function Dashboard() {
                     {renderPrimaryDashboardAction(job)}
                   </div>
                 </div>
-                );
+                )
               }) : (
                 <div className="text-center py-10">
                   <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4"/>
-                  <h3 className="font-medium text-slate-700">All caught up!</h3>
-                  <p className="text-slate-500 text-sm">No jobs require immediate attention.</p>
+                  <h3 className="font-medium text-slate-700">No immediate actions required.</h3>
+                  <p className="text-slate-500 text-sm">Jobs needing attention will appear here.</p>
                 </div>
               )}
             </CardContent>
           </Card>
-          
-          <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl animate-fade-in-up">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <AlertCircle className="w-5 h-5 text-orange-600"/> {/* Changed icon to AlertCircle */}
-                </div>
-                <div>
-                  <CardTitle className="text-xl font-semibold text-slate-800">Needs Review</CardTitle>
-                  <p className="text-sm text-slate-500">These assessments need additional information or review.</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4"> {/* Changed space-y to space-y-4 for consistent spacing */}
-              {pendingReviewAssessments.length > 0 ? pendingReviewAssessments.map(assessment => {
-                const job = allJobs.find(j => j.id === assessment.job_id);
-                if (!job) return null;
-                return (
-                  <div key={assessment.id} className="p-5 bg-slate-50/80 rounded-xl border border-slate-200/90">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2 flex-wrap">
-                          <h3 className="font-bold text-lg text-slate-800">{job.claim_number}</h3>
-                          <Badge className="bg-orange-50 text-orange-700 border-orange-200 border font-medium text-xs px-2 py-0.5">
-                            Needs Review
-                          </Badge>
-                        </div>
-                        <p className="font-medium text-slate-700 mb-3">{job.customer_name}</p>
-                      </div>
-                    </div>
 
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                        <span className="truncate">{job.property_address}</span>
+          {pendingReviewAssessments.length > 0 && (
+            <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl animate-fade-in-up">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <AlertCircle className="w-5 h-5 text-orange-600"/> {/* Changed icon to AlertCircle */}
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-slate-800">Needs Review</CardTitle>
+                    <p className="text-sm text-slate-500">These assessments need additional information or review.</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4"> {/* Changed space-y to space-y-4 for consistent spacing */}
+                {pendingReviewAssessments.map(assessment => {
+                  const job = allJobs.find(j => j.id === assessment.job_id);
+                  if (!job) return null;
+                  return (
+                    <div key={assessment.id} className="p-5 bg-slate-50/80 rounded-xl border border-slate-200/90">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2 flex-wrap">
+                            <h3 className="font-bold text-lg text-slate-800">{job.claim_number}</h3>
+                            <Badge className="bg-orange-50 text-orange-700 border-orange-200 border font-medium text-xs px-2 py-0.5">
+                              Needs Review
+                            </Badge>
+                          </div>
+                          <p className="font-medium text-slate-700 mb-3">{job.customer_name}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <Activity className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                        <span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span>
-                        <span className="text-slate-400">•</span>
-                        <CalendarIcon className="w-4 h-4 text-slate-400" />
-                        <span>{new Date(job.date_of_loss).toLocaleDateString()}</span>
-                      </div>
-                      {job.customer_phone && (
+
+                      <div className="space-y-2 mb-4">
                         <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <Phone className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                          <span>{job.customer_phone}</span>
+                          <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                          <span className="truncate">{job.property_address}</span>
                         </div>
-                      )}
-                    </div>
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <Activity className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                          <span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span>
+                          <span className="text-slate-400">•</span>
+                          <Calendar className="w-4 h-4 text-slate-400" />
+                          <span>{new Date(job.date_of_loss).toLocaleDateString()}</span>
+                        </div>
+                        {job.customer_phone && (
+                          <div className="flex items-center gap-2 text-sm text-slate-600">
+                            <Phone className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                            <span>{job.customer_phone}</span>
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-200/90">
-                      <div className="flex items-center gap-2">
-                        <Link to={createPageUrl(`JobDetails?id=${job.id}`)}>
-                          <Button variant="outline" size="sm" className="text-slate-600 hover:text-slate-800">
-                            <FileText className="w-4 h-4 mr-2" />
-                            Job Details
+                      <div className="flex items-center justify-between pt-3 border-t border-slate-200/90">
+                        <div className="flex items-center gap-2">
+                          <Link to={createPageUrl(`JobDetails?id=${job.id}`)}>
+                            <Button variant="outline" size="sm" className="text-slate-600 hover:text-slate-800">
+                              <FileText className="w-4 h-4 mr-2" />
+                              Job Details
+                            </Button>
+                          </Link>
+                        </div>
+                        <Link to={createPageUrl(`AssessmentDetails?id=${assessment.id}`)}>
+                          <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-white">
+                            <AlertCircle className="w-4 h-4 mr-2" />
+                            Review Assessment
                           </Button>
                         </Link>
                       </div>
-                      <Link to={createPageUrl(`AssessmentDetails?id=${assessment.id}`)}>
-                        <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-white">
-                          <AlertCircle className="w-4 h-4 mr-2" />
-                          Review Assessment
-                        </Button>
-                      </Link>
                     </div>
-                  </div>
-                );
-              }) : (
-                <div className="text-center py-10">
-                  <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4"/>
-                  <h3 className="font-medium text-slate-700">All assessments reviewed!</h3>
-                  <p className="text-slate-500 text-sm">No assessments need review at this time.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl animate-fade-in-up animate-stagger-2">
             <CardHeader>
@@ -889,8 +721,8 @@ export default function Dashboard() {
                   {assessmentOverdue && (<div className="flex items-center gap-2 text-sm text-red-700 bg-red-50 p-2 rounded-lg mb-3 animate-pulse border border-red-200"><AlertTriangle className="w-4 h-4 flex-shrink-0" /><span>Assessment is overdue. Please complete it soon.</span></div>)}
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-slate-600"><MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" /><span className="truncate">{job.property_address}</span></div>
-                    <div className="flex items-center gap-2 text-sm text-slate-600"><Activity className="w-4 h-4 text-slate-400 flex-shrink-0" /><span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span><span className="text-slate-400">•</span><CalendarIcon className="w-4 h-4 text-slate-400" /><span>{new Date(job.date_of_loss).toLocaleDateString()}</span></div>
-                    {job.appointment_date && (<div className="flex items-center gap-2 text-sm text-slate-600 font-medium bg-green-50 p-2 rounded-lg border border-green-200"><CalendarIcon className="w-4 h-4 text-green-600 flex-shrink-0" /><span>Booked for: {format(new Date(job.appointment_date), 'EEE, d MMM yyyy @ p')}</span></div>)}
+                    <div className="flex items-center gap-2 text-sm text-slate-600"><Activity className="w-4 h-4 text-slate-400 flex-shrink-0" /><span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span><span className="text-slate-400">•</span><Calendar className="w-4 h-4 text-slate-400" /><span>{new Date(job.date_of_loss).toLocaleDateString()}</span></div>
+                    {job.appointment_date && (<div className="flex items-center gap-2 text-sm text-slate-600 font-medium bg-green-50 p-2 rounded-lg border border-green-200"><Calendar className="w-4 h-4 text-green-600 flex-shrink-0" /><span>Booked for: {format(new Date(job.appointment_date), 'EEE, d MMM yyyy @ p')}</span></div>)}
                     {job.customer_phone && (<div className="flex items-center gap-2 text-sm text-slate-600"><Phone className="w-4 h-4 text-slate-400 flex-shrink-0" /><span>{job.customer_phone}</span></div>)}
                   </div>
                   <div className="flex items-center justify-between pt-3 border-t border-slate-200/90">
@@ -900,7 +732,7 @@ export default function Dashboard() {
                     {renderPrimaryDashboardAction(job)}
                   </div>
                 </div>
-                );
+                )
               }) : (
                 <div className="text-center py-10">
                   <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4"/>
@@ -913,15 +745,9 @@ export default function Dashboard() {
 
         </div>
 
-        {/* Bottom Section - Workflow Metrics */}
-      </div>
-      
-      <div className="animate-fade-in-up animate-stagger-3">
-        <div className="max-w-sm">
-          <div className="space-y-6">
-            <WorkflowMetrics userJobs={userJobs} userAssessments={userAssessments} />
-            <OfflineSync />
-          </div>
+        {/* Right Column - Workflow Metrics with user-specific data */}
+        <div className="animate-fade-in-up animate-stagger-3">
+          <WorkflowMetrics userJobs={userJobs} userAssessments={userAssessments} />
         </div>
       </div>
 
@@ -942,6 +768,5 @@ export default function Dashboard() {
         onDeclineComplete={handleDeclineComplete}
       />
     </div>
-    </>
   );
 }

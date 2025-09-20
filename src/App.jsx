@@ -1,12 +1,10 @@
 import './App.css'
 import Pages from "@/pages/index.jsx"
-import { Toaster } from "sonner"
+import { Toaster } from "@/components/ui/toaster"
 import { useState, useEffect } from 'react'
 import { User } from '@/api/entities'
 import LoginPage from '@/pages/Login'
 import { Loader2 } from 'lucide-react'
-import { auth } from '@/lib/auth'
-import { notifications } from '@/lib/notifications'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null)
@@ -14,16 +12,6 @@ function App() {
 
   useEffect(() => {
     checkAuthStatus()
-    
-    // Set up auth state listener
-    const unsubscribe = auth.onAuthStateChange((user) => {
-      setIsAuthenticated(!!user)
-      if (user) {
-        notifications.success(`Welcome back, ${user.full_name}!`)
-      }
-    })
-    
-    return unsubscribe
   }, [])
 
   const checkAuthStatus = async () => {
@@ -61,17 +49,6 @@ function App() {
     <>
       <Pages />
       <Toaster />
-      <Toaster 
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
-            color: '#1e293b'
-          }
-        }}
-      />
     </>
   )
 }
