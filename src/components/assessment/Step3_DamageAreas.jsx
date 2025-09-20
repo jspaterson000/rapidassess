@@ -144,22 +144,22 @@ function DamageAreaCard({ area, index, updateArea, removeArea }) {
   );
 }
 
-export default function Step3_DamageAreas({ data, updateData, onNext, onBack }) {
+export default function Step3_DamageAreas({ damageAreas, onUpdate, onNext, onBack }) {
   const addArea = () => {
-    updateData([...data, { area: '', damage_type: '', description: '', photos: [] }]);
+    onUpdate([...damageAreas, { area: '', damage_type: '', description: '', photos: [] }]);
   };
 
   const removeArea = (indexToRemove) => {
-    updateData(data.filter((_, index) => index !== indexToRemove));
+    onUpdate(damageAreas.filter((_, index) => index !== indexToRemove));
   };
 
   const updateArea = (index, updatedArea) => {
-    const newData = [...data];
+    const newData = [...damageAreas];
     newData[index] = updatedArea;
-    updateData(newData);
+    onUpdate(newData);
   };
 
-  const hasValidAreas = data.length > 0 && data.some(area => area.area?.trim() && area.description?.trim());
+  const hasValidAreas = damageAreas.length > 0 && damageAreas.some(area => area.area?.trim() && area.description?.trim());
 
   return (
     <div className="space-y-8">
@@ -171,7 +171,7 @@ export default function Step3_DamageAreas({ data, updateData, onNext, onBack }) 
       
       {/* Areas */}
       <div className="space-y-6">
-        {data.map((area, index) => (
+        {damageAreas.map((area, index) => (
           <DamageAreaCard 
             key={index}
             index={index}
@@ -181,7 +181,7 @@ export default function Step3_DamageAreas({ data, updateData, onNext, onBack }) 
           />
         ))}
 
-        {data.length === 0 && (
+        {damageAreas.length === 0 && (
           <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
             <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="font-semibold text-gray-900 mb-2">No damage areas added yet</h3>

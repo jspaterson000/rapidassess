@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PdsDocument } from '@/api/entities';
 import { FileText, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-export default function Step2_EventDetails({ data, pdsDocumentId, updateData, updateAssessmentData, onNext, onBack }) {
+export default function Step2_EventDetails({ eventDetails, onUpdate, onNext, onBack }) {
   const [pdsDocs, setPdsDocs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,16 +25,15 @@ export default function Step2_EventDetails({ data, pdsDocumentId, updateData, up
   }, []);
 
   const handleChange = (field, value) => {
-    updateData({ ...data, [field]: value });
+    onUpdate({ ...eventDetails, [field]: value });
   };
 
   const isFormValid = () => {
     return (
-      pdsDocumentId &&
-      data.event_type &&
-      data.damage_description?.trim() &&
-      data.cause_description?.trim() &&
-      data.owner_maintenance_status
+      eventDetails.event_type &&
+      eventDetails.damage_description?.trim() &&
+      eventDetails.cause_description?.trim() &&
+      eventDetails.owner_maintenance_status
     );
   };
   
@@ -54,14 +53,14 @@ export default function Step2_EventDetails({ data, pdsDocumentId, updateData, up
             <Label className="flex items-center gap-2 text-gray-900 font-medium">
               <FileText className="w-4 h-4 text-blue-600" />
               PDS Document for Analysis
-              {pdsDocumentId && <CheckCircle2 className="w-4 h-4 text-green-600" />}
+              {eventDetails.pds_document_id && <CheckCircle2 className="w-4 h-4 text-green-600" />}
             </Label>
             {loading ? (
               <div className="h-11 bg-gray-100 rounded-lg animate-pulse"></div>
             ) : (
               <Select
-                value={pdsDocumentId || ''}
-                onValueChange={(value) => updateAssessmentData('pds_document_id', value)}
+                value={eventDetails.pds_document_id || ''}
+                onValueChange={(value) => onUpdate({ ...eventDetails, pds_document_id: value })}
               >
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select PDS document..." />
@@ -81,10 +80,10 @@ export default function Step2_EventDetails({ data, pdsDocumentId, updateData, up
             <Label className="flex items-center gap-2 text-gray-900 font-medium">
               <AlertCircle className="w-4 h-4 text-amber-600" />
               Event Type
-              {data.event_type && <CheckCircle2 className="w-4 h-4 text-green-600" />}
+              {eventDetails.event_type && <CheckCircle2 className="w-4 h-4 text-green-600" />}
             </Label>
             <Select
-              value={data.event_type || ''}
+              value={eventDetails.event_type || ''}
               onValueChange={(value) => handleChange('event_type', value)}
             >
               <SelectTrigger className="h-11">
@@ -105,10 +104,10 @@ export default function Step2_EventDetails({ data, pdsDocumentId, updateData, up
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-gray-900 font-medium">
             Description of Damage
-            {data.damage_description?.trim() && <CheckCircle2 className="w-4 h-4 text-green-600" />}
+            {eventDetails.damage_description?.trim() && <CheckCircle2 className="w-4 h-4 text-green-600" />}
           </Label>
           <Textarea
-            value={data.damage_description || ''}
+            value={eventDetails.damage_description || ''}
             onChange={(e) => handleChange('damage_description', e.target.value)}
             placeholder="e.g., Water damage to ceiling and walls in the living room, with visible staining and potential structural damage..."
             rows={4}
@@ -120,10 +119,10 @@ export default function Step2_EventDetails({ data, pdsDocumentId, updateData, up
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-gray-900 font-medium">
             Cause of Damage
-            {data.cause_description?.trim() && <CheckCircle2 className="w-4 h-4 text-green-600" />}
+            {eventDetails.cause_description?.trim() && <CheckCircle2 className="w-4 h-4 text-green-600" />}
           </Label>
           <Textarea
-            value={data.cause_description || ''}
+            value={eventDetails.cause_description || ''}
             onChange={(e) => handleChange('cause_description', e.target.value)}
             placeholder="e.g., Hole in the roof from fallen tree branch during storm, allowing water ingress for several hours before temporary repairs..."
             rows={4}
@@ -135,10 +134,10 @@ export default function Step2_EventDetails({ data, pdsDocumentId, updateData, up
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-gray-900 font-medium">
             Was Owner Maintenance Completed Appropriately?
-            {data.owner_maintenance_status && <CheckCircle2 className="w-4 h-4 text-green-600" />}
+            {eventDetails.owner_maintenance_status && <CheckCircle2 className="w-4 h-4 text-green-600" />}
           </Label>
           <Select
-            value={data.owner_maintenance_status || ''}
+            value={eventDetails.owner_maintenance_status || ''}
             onValueChange={(value) => handleChange('owner_maintenance_status', value)}
           >
             <SelectTrigger className="h-11">

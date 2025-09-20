@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { InvokeLLM } from "@/api/integrations";
 import { FileText, Download, Loader2 } from 'lucide-react';
 
-export default function Step9_ReportGeneration({ data, onComplete, onBack }) {
+export default function Step9_ReportGeneration({ assessmentData, onComplete, onBack }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportGenerated, setReportGenerated] = useState(false);
   const [reportPreview, setReportPreview] = useState(null);
@@ -16,7 +16,7 @@ export default function Step9_ReportGeneration({ data, onComplete, onBack }) {
 Generate a professional insurance assessment report based on the following data:
 
 ASSESSMENT DATA:
-${JSON.stringify(data, null, 2)}
+${JSON.stringify(assessmentData, null, 2)}
 
 Create a comprehensive report that includes:
 1. Executive Summary
@@ -58,7 +58,7 @@ Format as a professional report suitable for insurance purposes.
         claim_details: "Standard assessment process followed with comprehensive documentation.",
         assessment_findings: "Damage areas identified and photographed.",
         recommendations: "Proceed with repairs as outlined in scope of works.",
-        total_estimate: data.scope_of_works?.reduce((sum, item) => sum + (item.total || 0), 0) || 0
+        total_estimate: assessmentData.scope_of_works?.reduce((sum, item) => sum + (item.total || 0), 0) || 0
       });
       setReportGenerated(true);
     } finally {

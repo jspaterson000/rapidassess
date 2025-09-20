@@ -126,8 +126,8 @@ function ScopeItemCard({ item, index, updateItem, removeItem }) {
   );
 }
 
-export default function Step8_ScopeOfWorks({ data, updateData, onComplete, onBack }) {
-  const [scopeItems, setScopeItems] = useState(data || []);
+export default function Step8_ScopeOfWorks({ scopeOfWorks, onUpdate, onComplete, onBack }) {
+  const [scopeItems, setScopeItems] = useState(scopeOfWorks || []);
 
   const addItem = () => {
     const newItem = {
@@ -139,20 +139,20 @@ export default function Step8_ScopeOfWorks({ data, updateData, onComplete, onBac
     };
     const newItems = [...scopeItems, newItem];
     setScopeItems(newItems);
-    updateData(newItems);
+    onUpdate(newItems);
   };
 
   const removeItem = (indexToRemove) => {
     const newItems = scopeItems.filter((_, index) => index !== indexToRemove);
     setScopeItems(newItems);
-    updateData(newItems);
+    onUpdate(newItems);
   };
 
   const updateItem = (index, updatedItem) => {
     const newItems = [...scopeItems];
     newItems[index] = updatedItem;
     setScopeItems(newItems);
-    updateData(newItems);
+    onUpdate(newItems);
   };
 
   const getTotalEstimate = () => {

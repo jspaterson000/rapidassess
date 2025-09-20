@@ -4,18 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Job } from '@/api/entities';
 import { ImageIcon, FileText } from 'lucide-react';
 
-export default function Step5_Review({ data, onNext, onBack }) {
+export default function Step5_Review({ assessmentData, onNext, onBack }) {
   const [job, setJob] = useState(null);
 
   useEffect(() => {
     const fetchJob = async () => {
-      if(data.job_id) {
-        const jobData = await Job.get(data.job_id);
+      if(assessmentData.job_id) {
+        const jobData = await Job.get(assessmentData.job_id);
         setJob(jobData);
       }
     };
     fetchJob();
-  }, [data.job_id]);
+  }, [assessmentData.job_id]);
 
   return (
     <div className="space-y-8">
@@ -33,13 +33,13 @@ export default function Step5_Review({ data, onNext, onBack }) {
             <div className="text-neumorphic-dark sm:text-right">{job?.claim_number || '...'}</div>
             
             <div className="font-medium text-neumorphic">Event Type:</div>
-            <div className="text-neumorphic-dark sm:text-right">{data.event_details.event_type}</div>
+            <div className="text-neumorphic-dark sm:text-right">{assessmentData.event_details.event_type}</div>
             
             <div className="font-medium text-neumorphic col-span-1 sm:col-span-2 mt-2">Damage Description:</div>
-            <div className="text-neumorphic-dark col-span-1 sm:col-span-2">{data.event_details.damage_description}</div>
+            <div className="text-neumorphic-dark col-span-1 sm:col-span-2">{assessmentData.event_details.damage_description}</div>
             
             <div className="font-medium text-neumorphic col-span-1 sm:col-span-2 mt-2">Cause Description:</div>
-            <div className="text-neumorphic-dark col-span-1 sm:col-span-2">{data.event_details.cause_description}</div>
+            <div className="text-neumorphic-dark col-span-1 sm:col-span-2">{assessmentData.event_details.cause_description}</div>
           </div>
         </div>
 
@@ -47,7 +47,7 @@ export default function Step5_Review({ data, onNext, onBack }) {
         <div className="p-4 neumorphic-inset rounded-lg">
           <h3 className="font-semibold text-neumorphic-dark mb-3 border-b border-gray-300 pb-2">Damage Areas</h3>
           <div className="space-y-4">
-            {data.damage_areas.map((area, index) => (
+            {assessmentData.damage_areas.map((area, index) => (
               <div key={index} className="p-3 neumorphic rounded-md">
                 <p className="font-medium text-neumorphic-dark">{area.area}</p>
                 <p className="text-sm text-neumorphic">{area.description}</p>
@@ -69,11 +69,11 @@ export default function Step5_Review({ data, onNext, onBack }) {
           <div className="flex gap-4">
             <div className="flex items-center gap-2 text-neumorphic-dark">
               <ImageIcon className="w-5 h-5" />
-              <span>{data.photos.length} General Photos</span>
+              <span>{assessmentData.photos.length} General Photos</span>
             </div>
             <div className="flex items-center gap-2 text-neumorphic-dark">
               <FileText className="w-5 h-5" />
-              <span>{data.documents.length} Documents</span>
+              <span>{assessmentData.documents.length} Documents</span>
             </div>
           </div>
         </div>

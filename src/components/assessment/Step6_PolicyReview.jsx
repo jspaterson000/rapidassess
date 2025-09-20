@@ -5,14 +5,14 @@ import { InvokeLLM, CreateFileSignedUrl } from "@/api/integrations";
 import { PdsDocument } from '@/api/entities';
 import { Loader2, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
-export default function Step6_PolicyReview({ data, onPolicyReview, onBack }) {
+export default function Step6_PolicyReview({ assessmentData, onPolicyReview, onBack }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Added to support the 'disabled' prop on buttons as per outline
 
   const handlePolicyCheck = async () => {
-    if (!data.pds_document_id) {
+    if (!assessmentData.pds_document_id) {
       setError("Please select a PDS document in the 'Event Details' step before proceeding.");
       return;
     }
@@ -20,10 +20,10 @@ export default function Step6_PolicyReview({ data, onPolicyReview, onBack }) {
     setIsAnalyzing(true);
     
     try {
-      console.log("Starting PDS analysis for document ID:", data.pds_document_id);
+      console.log("Starting PDS analysis for document ID:", assessmentData.pds_document_id);
       
       // First, get the PDS document
-      const pdsDoc = await PdsDocument.get(data.pds_document_id);
+      const pdsDoc = await PdsDocument.get(assessmentData.pds_document_id);
       console.log("PDS document loaded:", pdsDoc);
       
       if (!pdsDoc.file_uri) {
@@ -43,11 +43,11 @@ First, you MUST access and thoroughly review the PDS document located at the fol
 Once you have understood the PDS, analyze the following claim details in the context of that document.
 
 CLAIM DETAILS:
-- Event Type: ${data.event_details.event_type || 'Not specified'}
-- Damage Description: ${data.event_details.damage_description || 'Not provided'}
-- Stated Cause: ${data.event_details.cause_description || 'Not provided'}
-- Owner Maintenance Status: ${data.event_details.owner_maintenance_status || 'Not specified'}
-- Damaged Areas: ${data.damage_areas?.length ? data.damage_areas.map((area, i) => `${area.area} (${area.damage_type}): ${area.description}`).join('; ') : 'None specified'}
+- Event Type: ${assessmentData.event_details.event_type || 'Not specified'}
+- Damage Description: ${assessmentData.event_details.damage_description || 'Not provided'}
+- Stated Cause: ${assessmentData.event_details.cause_description || 'Not provided'}
+- Owner Maintenance Status: ${assessmentData.event_details.owner_maintenance_status || 'Not specified'}
+- Damaged Areas: ${assessmentData.damage_areas?.length ? assessmentData.damage_areas.map((area, i) => `${area.area} (${area.damage_type}): ${area.description}`).join('; ') : 'None specified'}
 
 Based on your analysis of the PDS and the claim details, provide your response in the specified JSON format. Your reasoning should be clear and directly reference the PDS where applicable.
 `;

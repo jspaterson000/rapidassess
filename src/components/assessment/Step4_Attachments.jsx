@@ -115,7 +115,7 @@ function FileUploader({ title, description, icon: Icon, fileTypes, files, update
   );
 }
 
-export default function Step4_Attachments({ photos, documents, updatePhotos, updateDocuments, onNext, onBack }) {
+export default function Step4_Attachments({ photos, documents, onPhotosUpdate, onDocumentsUpdate, onNext, onBack }) {
   const hasFiles = photos.length > 0 || documents.length > 0;
 
   return (
@@ -135,7 +135,7 @@ export default function Step4_Attachments({ photos, documents, updatePhotos, upd
           fileTypes="PNG, JPG, GIF up to 10MB each"
           acceptedTypes="image/*"
           files={photos}
-          updateFiles={updatePhotos}
+          updateFiles={onPhotosUpdate}
         />
         
         <FileUploader
@@ -145,7 +145,7 @@ export default function Step4_Attachments({ photos, documents, updatePhotos, upd
           fileTypes="PDF, DOCX, TXT up to 10MB each"
           acceptedTypes=".pdf,.doc,.docx,.txt"
           files={documents}
-          updateFiles={updateDocuments}
+          updateFiles={onDocumentsUpdate}
         />
       </div>
 

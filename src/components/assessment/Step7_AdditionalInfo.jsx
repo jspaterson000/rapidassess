@@ -6,12 +6,20 @@ import { Label } from '@/components/ui/label';
 import { UploadFile } from "@/api/integrations";
 import { Upload, FileText, ImageIcon, X, CheckCircle, Loader2 } from 'lucide-react';
 
-export default function Step7_AdditionalInfo({ data, policyResult, updateData, onComplete, onBack }) {
+export default function Step7_AdditionalInfo({ additionalInfoRequests, onUpdate, onComplete, onBack }) {
   const [additionalNotes, setAdditionalNotes] = useState('');
   const [additionalPhotos, setAdditionalPhotos] = useState([]);
   const [additionalDocuments, setAdditionalDocuments] = useState([]);
   const [completedRequirements, setCompletedRequirements] = useState(new Set());
   const [isUploading, setIsUploading] = useState(false);
+  const [policyResult, setPolicyResult] = useState(null);
+
+  // Get policy result from assessment data if available
+  useEffect(() => {
+    if (additionalInfoRequests?.policy_result) {
+      setPolicyResult(additionalInfoRequests.policy_result);
+    }
+  }, [additionalInfoRequests]);
 
   const handleFileUpload = async (e, type) => {
     const files = Array.from(e.target.files);
@@ -55,16 +63,12 @@ export default function Step7_AdditionalInfo({ data, policyResult, updateData, o
 
   const handleContinue = () => {
     // Update the assessment data with additional info
-    updateData('additional_info_requests', {
+    onUpdate({
       notes: additionalNotes,
       photos: additionalPhotos,
       documents: additionalDocuments,
       completed_requirements: Array.from(completedRequirements)
     });
-    
-    // Add new photos and documents to main arrays
-    updateData('photos', [...data.photos, ...additionalPhotos]);
-    updateData('documents', [...data.documents, ...additionalDocuments]);
     
     onComplete();
   };
