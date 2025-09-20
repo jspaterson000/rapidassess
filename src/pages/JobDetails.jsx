@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Job } from '@/api/entities';
@@ -224,14 +223,15 @@ export default function JobDetailsPage() {
         }
         if (job.appointment_date && isAssignedToMe) {
           return (
-            <Button
-              size="sm"
-              onClick={() => navigate(createPageUrl(`StartAssessment?jobId=${job.id}`))}
-              className="bg-slate-700 hover:bg-slate-800 text-white"
-            >
-              <ClipboardCheck className="w-4 h-4 mr-2" />
-              Start Assessment
-            </Button>
+            <Link to={createPageUrl(`StartAssessment?jobId=${job.id}`)}>
+              <Button
+                size="sm"
+                className="bg-slate-700 hover:bg-slate-800 text-white"
+              >
+                <ClipboardCheck className="w-4 h-4 mr-2" />
+                Start Assessment
+              </Button>
+            </Link>
           );
         }
         if (isAssignedToMe) {
