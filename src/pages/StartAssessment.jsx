@@ -75,11 +75,13 @@ export default function StartAssessment() {
                 event_type: jobData.event_type 
               }
             }));
-            setCurrentStep(1);
+            setCurrentStep(1); // Skip job selection, go to Event Details
           } catch (error) {
             console.error("Error loading job:", error);
-            setCurrentStep(0);
+            setCurrentStep(0); // Fall back to job selection if job can't be loaded
           }
+        } else {
+          setCurrentStep(0); // No jobId provided, start with job selection
         }
       } catch (e) {
         console.error("User not found");
