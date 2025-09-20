@@ -23,46 +23,53 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
   const [selectedUserId, setSelectedUserId] = useState('');
   const [isAssigning, setIsAssigning] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [distanceCalculationComplete, setDistanceCalculationComplete] = useState(false);
 
   // Helper function to calculate distance using LLM
   const calculateDistance = async (assessor, targetJob) => {
     if (!assessor.base_location || !targetJob?.property_address) {
-      return { distance_km: -1, travel_time_minutes: -1, error: "Missing location data" };
+        return { error: "Missing location data for distance calculation" };
     }
 
+    let startLocation = assessor.base_location;
+    
     try {
-      // Use a timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Calculation timeout')), 3000)
-      );
-      
-      const calculationPromise = InvokeLLM({
-        prompt: `Calculate driving distance and time between "${assessor.base_location}" and "${targetJob.property_address}" in Australia. Return JSON with distance_km and travel_time_minutes.`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            distance_km: { type: "number" },
-            travel_time_minutes: { type: "number" },
-          },
-          required: ["distance_km", "travel_time_minutes"]
+        const response = await InvokeLLM({
+            prompt: `You are a travel calculation assistant. Calculate the driving distance and estimated travel time between these two Australian locations:
+
+Starting location: "${startLocation}"
+Destination: "${targetJob.property_address}"
+
+Please provide realistic Australian driving distances and travel times. Use Google Maps data if available through your internet search.
+
+Return ONLY a valid JSON object with exactly this structure:
+{
+  "distance_km": [number - driving distance in kilometers],
+  "travel_time_minutes": [number - estimated driving time in minutes]
+}
+
+Important: 
+- If locations are valid, provide realistic non-zero values
+- If you cannot determine the locations, return distance_km: -1 and travel_time_minutes: -1
+- Do not return 0 unless the locations are actually the same place
+- Round distance to 1 decimal place and time to nearest minute`,
+            add_context_from_internet: true,
+            response_json_schema: {
+                type: "object",
+                properties: {
+                    distance_km: { type: "number" },
+                    travel_time_minutes: { type: "number" },
+                },
+                required: ["distance_km", "travel_time_minutes"]
+            }
+        });
+        
+        if (response && typeof response.distance_km === 'number' && typeof response.travel_time_minutes === 'number') {
+            return { distance_km: response.distance_km, travel_time_minutes: response.travel_time_minutes };
         }
-      });
-      
-      const response = await Promise.race([calculationPromise, timeoutPromise]);
-      
-      if (response && typeof response.distance_km === 'number' && typeof response.travel_time_minutes === 'number') {
-        return { distance_km: response.distance_km, travel_time_minutes: response.travel_time_minutes };
-      }
-      
-      throw new Error('Invalid response format');
+        return { error: "Could not calculate distance - invalid response" };
     } catch (e) {
-      console.warn(`Distance calculation failed for ${assessor.full_name}, using fallback:`, e);
-      // Fallback to realistic mock data for demo purposes
-      const mockDistance = Math.random() * 40 + 5;
-      const mockTime = Math.random() * 50 + 10;
-      return { distance_km: parseFloat(mockDistance.toFixed(1)), travel_time_minutes: Math.round(mockTime) };
+        console.error(`Distance calculation failed for ${assessor.full_name}:`, e);
+        return { error: "AI error calculating distance" };
     }
   };
 
@@ -70,7 +77,6 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
     if (!job) return;
 
     setLoading(true);
-    setDistanceCalculationComplete(false);
     setAssessorDetails({});
     setAssessors([]);
 
@@ -100,8 +106,7 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
       const details = {};
       const maxAssessmentsPerDay = companyData?.max_assessments_per_day || Infinity;
 
-      // Calculate availability first (synchronous)
-      potentialAssessors.forEach((assessor) => {
+      const distanceAndAvailabilityPromises = potentialAssessors.map(async (assessor) => {
         const jobsTodayCount = todayAssessmentsData.filter(
           assessment => assessment.assessor_id === assessor.id
         ).length;
@@ -110,63 +115,17 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
           ? { status: 'Unavailable', reason: `Reached daily limit (${jobsTodayCount}/${maxAssessmentsPerDay})` }
           : { status: 'Available', reason: `${jobsTodayCount}/${maxAssessmentsPerDay} jobs today` };
 
-        details[assessor.id] = { 
-          distance_km: -1, 
-          travel_time_minutes: -1, 
-          availability, 
-          name: assessor.full_name, 
-          location: assessor.base_location,
-          calculating: true
-        };
+        const distanceData = await calculateDistance(assessor, job);
+        details[assessor.id] = { ...distanceData, availability, name: assessor.full_name, location: assessor.base_location };
       });
 
+      await Promise.all(distanceAndAvailabilityPromises);
       setAssessorDetails(details);
-      setLoading(false); // Set loading to false immediately after basic data is loaded
-
-      // Calculate distances in background
-      let completedCalculations = 0;
-      const totalCalculations = potentialAssessors.length;
-      
-      const calculateDistanceForAssessor = async (assessor) => {
-        try {
-          const distanceData = await calculateDistance(assessor, job);
-          setAssessorDetails(prev => ({
-            ...prev,
-            [assessor.id]: {
-              ...prev[assessor.id],
-              ...distanceData,
-              calculating: false
-            }
-          }));
-        } catch (error) {
-          console.error(`Failed to calculate distance for ${assessor.full_name}:`, error);
-          setAssessorDetails(prev => ({
-            ...prev,
-            [assessor.id]: {
-              ...prev[assessor.id],
-              distance_km: -1,
-              travel_time_minutes: -1,
-              calculating: false,
-              error: "Distance unavailable"
-            }
-          }));
-        } finally {
-          completedCalculations++;
-          if (completedCalculations === totalCalculations) {
-            setDistanceCalculationComplete(true);
-          }
-        }
-      };
-      
-      // Start all distance calculations
-      potentialAssessors.forEach(assessor => {
-      });
 
     } catch (error) {
       console.error("Error loading data for job assignment dialog:", error);
-      setLoading(false);
     } finally {
-      // Don't set loading to false here since we moved it above
+      setLoading(false);
     }
   }, [job, calculateDistance]);
 
@@ -174,16 +133,6 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
     if (open) {
       loadInitialData();
       setSelectedUserId(job?.assigned_to || '');
-    }
-  }, [open, job?.id]); // Only depend on job.id to prevent unnecessary recalculations
-
-  // Reset state when dialog closes
-  useEffect(() => {
-    if (!open) {
-      setAssessorDetails({});
-      setAssessors([]);
-      setDistanceCalculationComplete(false);
-      setLoading(false);
     }
   }, [open, job, loadInitialData]);
 
@@ -218,7 +167,7 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
   };
 
   const sortedAssessors = useMemo(() => {
-    if (loading || assessors.length === 0) return [];
+    if (loading) return [];
     
     return [...assessors].sort((a, b) => {
       const detailA = assessorDetails[a.id] || {};
@@ -240,12 +189,7 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
     });
   }, [assessors, assessorDetails, loading]);
   
-  const recommendedAssessorId = useMemo(() => {
-    if (sortedAssessors.length === 0) return null;
-    const firstAssessor = sortedAssessors[0];
-    const details = assessorDetails[firstAssessor.id];
-    return details?.availability?.status === 'Available' ? firstAssessor.id : null;
-  }, [sortedAssessors, assessorDetails]);
+  const recommendedAssessorId = sortedAssessors.length > 0 && assessorDetails[sortedAssessors[0].id]?.availability?.status === 'Available' ? sortedAssessors[0].id : null;
 
   // Determine button text based on current assignment and selection
   const getButtonText = () => {
@@ -305,22 +249,12 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
             }
           }
 
-          @keyframes smoothFadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(5px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
           .dialog-content {
             animation: dialogSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
           }
 
           .assessor-card {
-            animation: smoothFadeIn 0.4s ease-out;
+            animation: assessorCardSlideIn 0.3s ease-out;
             transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
           }
 
@@ -345,18 +279,6 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
             animation: shimmerPulse 1.5s ease-in-out infinite;
           }
 
-          .distance-info {
-            transition: opacity 0.3s ease-in-out;
-          }
-
-          .calculating-spinner {
-            animation: spin 1s linear infinite;
-          }
-
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
           .stagger-1 { animation-delay: 0.05s; }
           .stagger-2 { animation-delay: 0.1s; }
           .stagger-3 { animation-delay: 0.15s; }
@@ -381,8 +303,11 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
             <div className="space-y-3">
               <div className="text-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
-                <p className="text-slate-600 text-sm font-medium">Loading assessors...</p>
+                <p className="text-slate-600 text-sm font-medium">Calculating distances and availability...</p>
               </div>
+              {[1, 2, 3].map(i => (
+                <div key={i} className={`loading-shimmer h-16 rounded-lg border border-slate-200 stagger-${i}`}></div>
+              ))}
             </div>
           ) : (
             <div className="space-y-2">
@@ -436,14 +361,9 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
                         <div className="text-xs text-slate-500">
                           {details.availability?.reason || 'Checking availability...'}
                         </div>
-                        <div className="flex items-center gap-3 distance-info">
-                          {details.calculating ? (
-                            <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded text-xs">
-                              <div className="w-3 h-3 border border-slate-400 border-t-transparent rounded-full calculating-spinner"></div>
-                              <span className="text-slate-600">Calculating...</span>
-                            </div>
-                          ) : details.error ? (
-                            <span className="text-amber-600 text-xs bg-amber-50 px-2 py-1 rounded">Distance unavailable</span>
+                        <div className="flex items-center gap-3">
+                          {details.error ? (
+                            <span className="text-red-500 text-xs">{details.error}</span>
                           ) : (
                             <>
                               {details.distance_km !== -1 && details.distance_km !== undefined && (
@@ -457,6 +377,9 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
                                   <Clock className="w-3 h-3 text-slate-400" />
                                   <span className="font-medium text-slate-700">{Math.round(details.travel_time_minutes)} min</span>
                                 </div>
+                              )}
+                              {details.distance_km === -1 && (
+                                <span className="text-amber-600 text-xs">Location unavailable</span>
                               )}
                             </>
                           )}
