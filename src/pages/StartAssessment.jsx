@@ -64,6 +64,7 @@ export default function StartAssessment() {
         
         const jobId = new URLSearchParams(location.search).get('jobId');
         if (jobId) {
+          // When jobId is provided, load the job and skip to Event Details
           try {
             const jobData = await Job.get(jobId);
             setAssessmentData(prev => ({
@@ -75,13 +76,15 @@ export default function StartAssessment() {
                 event_type: jobData.event_type 
               }
             }));
-            setCurrentStep(1); // Skip job selection, go to Event Details
+            setCurrentStep(1); // Skip job selection, go directly to Event Details
           } catch (error) {
             console.error("Error loading job:", error);
-            setCurrentStep(0); // Fall back to job selection if job can't be loaded
+            // If job can't be loaded, stay at job selection
+            setCurrentStep(0);
           }
         } else {
-          setCurrentStep(0); // No jobId provided, start with job selection
+          // No jobId provided, start with job selection
+          setCurrentStep(0);
         }
       } catch (e) {
         console.error("User not found");
