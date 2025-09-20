@@ -161,7 +161,6 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
       // Start all distance calculations
       potentialAssessors.forEach(assessor => {
         calculateDistanceForAssessor(assessor);
-        }
       });
 
     } catch (error) {
