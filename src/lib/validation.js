@@ -185,5 +185,3 @@ export const validateFileUpload = (file, options = {}) => {
 
   return true;
 };
-
-export default DatabaseService;
