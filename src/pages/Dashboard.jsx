@@ -515,10 +515,20 @@ export default function Dashboard() {
       </header>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
         
-        {/* Left Column - Task Lists and Analytics */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Left Column - Calendar */}
+        <div className="xl:col-span-2 space-y-6">
+          <EnhancedCalendar 
+            appointments={userJobs.filter(job => job.appointment_date)}
+            onDateSelect={(date) => console.log('Date selected:', date)}
+            onAppointmentClick={(apt) => console.log('Appointment clicked:', apt)}
+            className="w-full"
+          />
+        </div>
+        
+        {/* Right Column - Task Lists */}
+        <div className="xl:col-span-3 space-y-6">
           
           {/* Analytics Charts */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -779,17 +789,14 @@ export default function Dashboard() {
 
         </div>
 
-        {/* Right Column - Workflow Metrics with user-specific data */}
-        <div className="animate-fade-in-up animate-stagger-3">
+        {/* Bottom Section - Workflow Metrics */}
+      </div>
+      
+      <div className="animate-fade-in-up animate-stagger-3">
+        <div className="max-w-sm">
           <div className="space-y-6">
             <WorkflowMetrics userJobs={userJobs} userAssessments={userAssessments} />
             <OfflineSync />
-            <EnhancedCalendar 
-              appointments={userJobs.filter(job => job.appointment_date)}
-              onDateSelect={(date) => console.log('Date selected:', date)}
-              onAppointmentClick={(apt) => console.log('Appointment clicked:', apt)}
-              className="w-full"
-            />
           </div>
         </div>
       </div>
