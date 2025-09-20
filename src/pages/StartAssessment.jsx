@@ -36,7 +36,11 @@ export default function StartAssessment() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const [currentStep, setCurrentStep] = useState(0);
+  // Initialize currentStep based on whether jobId is provided
+  const [currentStep, setCurrentStep] = useState(() => {
+    const jobId = new URLSearchParams(location.search).get('jobId');
+    return jobId ? 1 : 0; // Start at step 1 (Event Details) if jobId provided, otherwise step 0 (Job Selection)
+  });
   const [user, setUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [policyReviewResult, setPolicyReviewResult] = useState(null);
@@ -76,15 +80,12 @@ export default function StartAssessment() {
                 event_type: jobData.event_type 
               }
             }));
-            setCurrentStep(1); // Skip job selection, go directly to Event Details
+            // currentStep is already set to 1 in the initial state
           } catch (error) {
             console.error("Error loading job:", error);
             // If job can't be loaded, stay at job selection
             setCurrentStep(0);
           }
-        } else {
-          // No jobId provided, start with job selection
-          setCurrentStep(0);
         }
       } catch (e) {
         console.error("User not found");
