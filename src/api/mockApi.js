@@ -10,13 +10,34 @@ import {
 
 // Simple in-memory storage
 let currentUser = null;
-let users = [...mockUsers];
-let companies = [...mockCompanies];
-let jobs = [...mockJobs];
-let assessments = [...mockAssessments];
-let comments = [...mockComments];
-let notifications = [...mockNotifications];
-let pdsDocuments = [...mockPdsDocuments];
+
+// Initialize data from localStorage or use mock data as fallback
+const initializeData = (key, mockData) => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [...mockData];
+  } catch (error) {
+    console.warn(`Failed to load ${key} from localStorage:`, error);
+    return [...mockData];
+  }
+};
+
+// Save data to localStorage
+const saveToStorage = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.warn(`Failed to save ${key} to localStorage:`, error);
+  }
+};
+
+let users = initializeData('users', mockUsers);
+let companies = initializeData('companies', mockCompanies);
+let jobs = initializeData('jobs', mockJobs);
+let assessments = initializeData('assessments', mockAssessments);
+let comments = initializeData('comments', mockComments);
+let notifications = initializeData('notifications', mockNotifications);
+let pdsDocuments = initializeData('pdsDocuments', mockPdsDocuments);
 
 // Utility functions
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -127,6 +148,16 @@ const createCrudOperations = (dataArray, name) => ({
       updated_date: new Date().toISOString()
     };
     dataArray.push(newItem);
+    
+    // Save to localStorage based on the data array
+    if (dataArray === users) saveToStorage('users', users);
+    else if (dataArray === companies) saveToStorage('companies', companies);
+    else if (dataArray === jobs) saveToStorage('jobs', jobs);
+    else if (dataArray === assessments) saveToStorage('assessments', assessments);
+    else if (dataArray === comments) saveToStorage('comments', comments);
+    else if (dataArray === notifications) saveToStorage('notifications', notifications);
+    else if (dataArray === pdsDocuments) saveToStorage('pdsDocuments', pdsDocuments);
+    
     return newItem;
   },
 
@@ -140,6 +171,16 @@ const createCrudOperations = (dataArray, name) => ({
       ...data,
       updated_date: new Date().toISOString()
     };
+    
+    // Save to localStorage based on the data array
+    if (dataArray === users) saveToStorage('users', users);
+    else if (dataArray === companies) saveToStorage('companies', companies);
+    else if (dataArray === jobs) saveToStorage('jobs', jobs);
+    else if (dataArray === assessments) saveToStorage('assessments', assessments);
+    else if (dataArray === comments) saveToStorage('comments', comments);
+    else if (dataArray === notifications) saveToStorage('notifications', notifications);
+    else if (dataArray === pdsDocuments) saveToStorage('pdsDocuments', pdsDocuments);
+    
     return dataArray[index];
   },
 
@@ -149,6 +190,16 @@ const createCrudOperations = (dataArray, name) => ({
     if (index === -1) throw new Error(`${name} not found`);
     
     const deleted = dataArray.splice(index, 1)[0];
+    
+    // Save to localStorage based on the data array
+    if (dataArray === users) saveToStorage('users', users);
+    else if (dataArray === companies) saveToStorage('companies', companies);
+    else if (dataArray === jobs) saveToStorage('jobs', jobs);
+    else if (dataArray === assessments) saveToStorage('assessments', assessments);
+    else if (dataArray === comments) saveToStorage('comments', comments);
+    else if (dataArray === notifications) saveToStorage('notifications', notifications);
+    else if (dataArray === pdsDocuments) saveToStorage('pdsDocuments', pdsDocuments);
+    
     return deleted;
   }
 });
