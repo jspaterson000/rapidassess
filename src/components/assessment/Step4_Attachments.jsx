@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { UploadFile } from "@/api/integrations";
-import { Upload, FileText, ImageIcon, X, Loader2 } from 'lucide-react';
+import { Upload, FileText, ImageIcon, X, Loader2, ArrowLeft, ArrowRight, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 function FileUploader({ title, description, icon: Icon, fileTypes, files, updateFiles, acceptedTypes }) {
@@ -181,133 +181,6 @@ export default function Step4_Attachments({ photos, documents, onPhotosUpdate, o
             <ArrowRight className="w-5 h-5" />
           </Button>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function FileUploader({ title, description, icon: Icon, fileTypes, files, updateFiles, acceptedTypes }) {
-  const [isUploading, setIsUploading] = useState(false);
-
-  const handleFileUpload = async (e) => {
-    const uploadedFiles = Array.from(e.target.files);
-    if (uploadedFiles.length === 0) return;
-
-    setIsUploading(true);
-    try {
-      const uploadPromises = uploadedFiles.map(file => UploadFile({ file }));
-      const results = await Promise.all(uploadPromises);
-      const newFileUrls = results.map(res => res.file_url);
-      updateFiles([...files, ...newFileUrls]);
-    } catch (error) {
-      console.error("Error uploading files:", error);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-  
-  const removeFile = (indexToRemove) => {
-    updateFiles(files.filter((_, index) => index !== indexToRemove));
-  };
-
-  const getFileIcon = (url) => {
-    if (/\.(jpg|jpeg|png|gif)$/i.test(url)) return <ImageIcon className="w-5 h-5 text-blue-600" />;
-    if (/\.pdf$/i.test(url)) return <FileText className="w-5 h-5 text-red-600" />;
-    return <FileText className="w-5 h-5 text-gray-600" />;
-  };
-
-  const getFileName = (url) => {
-    const parts = url.split('/');
-    const fileNameWithQuery = parts[parts.length - 1];
-    const fileName = fileNameWithQuery.split('?')[0];
-    return fileName.length > 30 ? fileName.substring(0, 30) + '...' : fileName;
-  };
-
-  return (
-    <div className="space-y-4 p-4 md:p-6 bg-gray-50 rounded-xl">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-900 rounded-lg flex items-center justify-center">
-          <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-        </div>
-        <div className="flex-1">
-          <h3 className="text-base md:text-lg font-semibold text-gray-900">{title}</h3>
-          <p className="text-sm md:text-base text-gray-600">{description}</p>
-        </div>
-        {files.length > 0 && (
-          <Badge variant="secondary" className="text-sm">
-            {files.length} file{files.length !== 1 ? 's' : ''}
-          </Badge>
-        )}
-      </div>
-
-      {/* File List */}
-      {files.length > 0 && (
-        <div className="space-y-3">
-          {files.map((url, index) => (
-            <div key={index} className="flex items-center justify-between p-3 md:p-4 bg-white rounded-lg border border-gray-200">
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                {getFileIcon(url)}
-                <span className="text-sm md:text-base font-medium text-gray-900 truncate">{getFileName(url)}</span>
-              </div>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                onClick={() => removeFile(index)}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0 h-10 w-10 md:h-12 md:w-12 min-w-[44px]"
-              >
-                <Trash2 className="w-5 h-5" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
-        
-      {/* Mobile-Optimized Upload Area */}
-      <label className="flex flex-col items-center justify-center w-full p-6 md:p-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition-colors min-h-[120px]">
-        <div className="flex flex-col items-center justify-center space-y-4">
-          {isUploading ? (
-            <>
-              <Loader2 className="w-8 h-8 md:w-10 md:h-10 text-gray-600 animate-spin" />
-              <p className="text-base md:text-lg font-medium text-gray-600">Uploading files...</p>
-            </>
-          ) : (
-            <>
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Upload className="w-6 h-6 md:w-8 md:h-8 text-gray-600" />
-              </div>
-              <div className="text-center">
-                <p className="text-base md:text-lg font-medium text-gray-900">Tap to upload or drag and drop</p>
-                <p className="text-sm md:text-base text-gray-600 mt-2">{fileTypes}</p>
-              </div>
-            </>
-          )}
-        </div>
-        <input 
-          type="file" 
-          multiple 
-          accept={acceptedTypes}
-          className="hidden" 
-          onChange={handleFileUpload} 
-          disabled={isUploading} 
-        />
-      </label>
-    </div>
-  );
-}
-        <Button 
-          onClick={onBack} 
-          variant="outline" 
-          className="btn-clean mobile-touch"
-        >
-          Back
-        </Button>
-        <Button 
-          onClick={onNext} 
-          className="btn-clean mobile-touch bg-gray-900 hover:bg-gray-800"
-        >
-          Continue to Review
-        </Button>
       </div>
     </div>
   );
