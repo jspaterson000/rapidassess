@@ -167,11 +167,28 @@ export default function BookAppointmentDialog({ open, onClose, job, onBookingCom
               mode="single"
               selected={date}
               onSelect={setDate}
-              className="rounded-lg border border-slate-200 bg-white shadow-sm"
+              className="rounded-lg border border-slate-200 bg-white shadow-sm w-full"
               classNames={{
+                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 w-full",
+                month: "space-y-4 w-full",
+                caption: "flex justify-center pt-1 relative items-center mb-4",
+                caption_label: "text-lg font-semibold",
+                nav: "space-x-1 flex items-center",
+                nav_button: "h-8 w-8 bg-transparent p-0 opacity-70 hover:opacity-100 border border-slate-200 rounded-md hover:bg-slate-50",
+                nav_button_previous: "absolute left-1",
+                nav_button_next: "absolute right-1",
+                table: "w-full border-collapse space-y-1",
+                head_row: "flex w-full",
+                head_cell: "text-slate-500 rounded-md w-full font-normal text-sm flex-1 text-center py-2",
+                row: "flex w-full mt-2",
+                cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 flex-1",
                 day_selected: "bg-slate-800 text-white hover:bg-slate-700",
                 day_today: "bg-slate-100 text-slate-900",
-                day: "hover:bg-slate-50 transition-colors"
+                day: "h-10 w-full rounded-md hover:bg-slate-50 transition-colors font-normal flex items-center justify-center",
+                day_outside: "text-slate-400 opacity-50",
+                day_disabled: "text-slate-400 opacity-30",
+                day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                day_hidden: "invisible"
               }}
             />
           </div>
