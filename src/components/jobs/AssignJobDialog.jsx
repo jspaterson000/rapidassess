@@ -27,37 +27,29 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
   // Helper function to calculate distance using LLM
   const calculateDistance = async (assessor, targetJob) => {
     if (!assessor.base_location || !targetJob?.property_address) {
-        return { distance_km: -1, travel_time_minutes: -1, error: "Missing location data" };
+        return { distance_km: -1, travel_time_minutes: -1, error: "Location data unavailable" };
     }
 
     let startLocation = assessor.base_location;
     
     try {
-        // Add timeout to prevent hanging
+        // Shorter timeout for better UX
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Distance calculation timeout')), 8000)
+          setTimeout(() => reject(new Error('Calculation timeout')), 5000)
         );
         
         const llmPromise = InvokeLLM({
-            prompt: `You are a travel calculation assistant. Calculate the driving distance and estimated travel time between these two Australian locations:
+            prompt: `Calculate driving distance and travel time between these Australian locations:
 
-Starting location: "${startLocation}"
-Destination: "${targetJob.property_address}"
+Start: "${startLocation}"
+End: "${targetJob.property_address}"
 
-Please provide realistic Australian driving distances and travel times. Use Google Maps data if available through your internet search.
-
-Return ONLY a valid JSON object with exactly this structure:
+Return JSON:
 {
-  "distance_km": [number - driving distance in kilometers],
-  "travel_time_minutes": [number - estimated driving time in minutes]
-}
-
-Important: 
-- If locations are valid, provide realistic non-zero values
-- If you cannot determine the locations, return distance_km: -1 and travel_time_minutes: -1
-- Do not return 0 unless the locations are actually the same place
-- Round distance to 1 decimal place and time to nearest minute`,
-            add_context_from_internet: true,
+  "distance_km": [number],
+  "travel_time_minutes": [number]
+}`,
+            add_context_from_internet: false, // Disable internet context for faster response
             response_json_schema: {
                 type: "object",
                 properties: {
@@ -73,10 +65,10 @@ Important:
         if (response && typeof response.distance_km === 'number' && typeof response.travel_time_minutes === 'number') {
             return { distance_km: response.distance_km, travel_time_minutes: response.travel_time_minutes };
         }
-        return { distance_km: -1, travel_time_minutes: -1, error: "Invalid response" };
+        return { distance_km: -1, travel_time_minutes: -1, error: "Calculation failed" };
     } catch (e) {
         console.warn(`Distance calculation failed for ${assessor.full_name}:`, e.message);
-        return { distance_km: -1, travel_time_minutes: -1, error: "Calculation failed" };
+        return { distance_km: -1, travel_time_minutes: -1, error: "Unable to calculate" };
     }
   };
 
@@ -113,7 +105,7 @@ Important:
       const details = {};
       const maxAssessmentsPerDay = companyData?.max_assessments_per_day || Infinity;
 
-      // Process assessors with better error handling and timeouts
+      // Process assessors sequentially with immediate UI updates
       for (const assessor of potentialAssessors) {
         const jobsTodayCount = todayAssessmentsData.filter(
           assessment => assessment.assessor_id === assessor.id
@@ -123,16 +115,16 @@ Important:
           ? { status: 'Unavailable', reason: `Reached daily limit (${jobsTodayCount}/${maxAssessmentsPerDay})` }
           : { status: 'Available', reason: `${jobsTodayCount}/${maxAssessmentsPerDay} jobs today` };
 
-        // Set initial state for this assessor
+        // Set initial state and update UI immediately
         details[assessor.id] = { 
           availability, 
           name: assessor.full_name, 
           location: assessor.base_location,
           distance_km: -1,
           travel_time_minutes: -1,
-          error: "Calculating..."
+          error: "Calculating distance..."
         };
-        setAssessorDetails({ ...details });
+        setAssessorDetails({ ...details }); // Update UI immediately
 
         try {
           const distanceData = await calculateDistance(assessor, job);
@@ -143,19 +135,17 @@ Important:
             location: assessor.base_location 
           };
         } catch (error) {
-          // Error already handled in calculateDistance function
+          details[assessor.id].error = "Distance unavailable";
         }
         
-        // Update the UI progressively as each assessor is processed
+        // Update UI after each calculation
         setAssessorDetails({ ...details });
       }
 
-      // Final update to ensure all data is set
-      setAssessorDetails(details);
 
     } catch (error) {
       console.error("Error loading data for job assignment dialog:", error);
-      // Set a fallback state so the UI doesn't stay stuck
+      // Ensure UI doesn't stay stuck on error
       setAssessors([]);
       setAssessorDetails({});
     } finally {
@@ -168,7 +158,7 @@ Important:
       loadInitialData();
       setSelectedUserId(job?.assigned_to || '');
     }
-  }, [open, job, loadInitialData]);
+  }, [open, job?.id]); // Simplified dependency array
 
   const handleAssignment = async () => {
     if (selectedUserId === undefined) return;

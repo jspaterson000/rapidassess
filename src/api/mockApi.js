@@ -170,13 +170,33 @@ export const PdsDocument = createCrudOperations(pdsDocuments, 'PdsDocument');
 export const integrations = {
   Core: {
     async InvokeLLM({ prompt, response_json_schema }) {
-      await delay(2000); // Simulate AI processing time
+      await delay(500); // Reduced delay for better UX
       
       // Return mock responses based on prompt content
       if (prompt.includes('distance') && prompt.includes('travel time')) {
+        // Simulate realistic Australian distances based on locations in prompt
+        const locations = prompt.match(/"([^"]+)"/g) || [];
+        if (locations.length >= 2) {
+          const start = locations[0]?.toLowerCase() || '';
+          const dest = locations[1]?.toLowerCase() || '';
+          
+          // Return realistic distances for Australian cities
+          if (start.includes('sydney') && dest.includes('sydney')) {
+            return { distance_km: Math.random() * 30 + 5, travel_time_minutes: Math.random() * 45 + 15 };
+          } else if (start.includes('melbourne') && dest.includes('melbourne')) {
+            return { distance_km: Math.random() * 25 + 8, travel_time_minutes: Math.random() * 40 + 20 };
+          } else if (start.includes('brisbane') && dest.includes('brisbane')) {
+            return { distance_km: Math.random() * 35 + 10, travel_time_minutes: Math.random() * 50 + 25 };
+          } else {
+            // Different cities - longer distances
+            return { distance_km: Math.random() * 500 + 100, travel_time_minutes: Math.random() * 300 + 120 };
+          }
+        }
+        
+        // Fallback for any parsing issues
         return {
-          distance_km: Math.random() * 50 + 5,
-          travel_time_minutes: Math.random() * 60 + 15
+          distance_km: Math.random() * 40 + 10,
+          travel_time_minutes: Math.random() * 60 + 20
         };
       }
       
