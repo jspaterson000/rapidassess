@@ -113,7 +113,7 @@ export default function Layout({ children, currentPageName }) {
 
     // Show role switcher for demo purposes - check if user has platform admin capabilities
     // This allows switching between roles for demonstration
-    const showRoleSwitcher = user.user_role === 'platform_admin' || user.email === 'jacob.paterson000@gmail.com';
+    const showRoleSwitcher = user.email === 'jacob.paterson000@gmail.com' || user.email === 'admin@rapidassess.com' || user.email === 'manager@rapidassess.com' || user.email === 'assessor@rapidassess.com';
 
     return (
       <div className="space-y-3">
