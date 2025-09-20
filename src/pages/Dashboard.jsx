@@ -632,14 +632,7 @@ export default function Dashboard() {
               }) : (
                 <div className="text-center py-10">
                   <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4"/>
-                  <h3 className="font-medium text-slate-700">No immediate actions required.</h3>
-                  <p className="text-slate-500 text-sm">Jobs needing attention will appear here.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {pendingReviewAssessments.length > 0 && (
+          <div className="lg:col-span-2 space-y-6">            
             <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl animate-fade-in-up">
               <CardHeader>
                 <div className="flex items-center gap-3">
@@ -779,11 +772,14 @@ export default function Dashboard() {
           <div className="space-y-6">
             <WorkflowMetrics userJobs={userJobs} userAssessments={userAssessments} />
             <OfflineSync />
-            <EnhancedCalendar 
-              appointments={userJobs.filter(job => job.appointment_date)}
-              onDateSelect={(date) => console.log('Date selected:', date)}
-              onAppointmentClick={(apt) => console.log('Appointment clicked:', apt)}
-            />
+            <div className="w-full">
+              <EnhancedCalendar 
+                appointments={userJobs.filter(job => job.appointment_date)}
+                onDateSelect={(date) => console.log('Date selected:', date)}
+                onAppointmentClick={(apt) => console.log('Appointment clicked:', apt)}
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
       </div>
