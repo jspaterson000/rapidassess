@@ -226,7 +226,7 @@ export default function JobDetailsPage() {
           return (
             <Button
               size="sm"
-              onClick={() => navigate(createPageUrl(`StartAssessment?jobId=${job.id}`))}
+              onClick={() => navigate(`/StartAssessment?jobId=${job.id}`)}
               className="bg-slate-700 hover:bg-slate-800 text-white"
             >
               <ClipboardCheck className="w-4 h-4 mr-2" />

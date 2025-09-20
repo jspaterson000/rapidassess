@@ -229,7 +229,7 @@ export default function JobsPage() {
       return (
         <Button
           size="sm"
-          onClick={() => navigate(createPageUrl(`StartAssessment?jobId=${job.id}`))}
+          onClick={() => navigate(`/StartAssessment?jobId=${job.id}`)}
           className="interactive-button w-full bg-slate-700 hover:bg-slate-800 text-white py-2 text-sm font-medium"
         >
           <ClipboardCheck className="w-4 h-4 mr-2" />

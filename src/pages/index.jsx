@@ -94,6 +94,8 @@ function PagesContent() {
                 
                 <Route path="/ManageTeam" element={<ManageTeam />} />
                 
+                <Route path="/StartAssessment" element={<StartAssessment />} />
+                
             </Routes>
         </Layout>
     );
