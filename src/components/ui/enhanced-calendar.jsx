@@ -123,7 +123,7 @@ export default function EnhancedCalendar({
   }
 
   return (
-    <Card className={className}>
+    <Card className={`w-full ${className || ''}`}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -178,7 +178,7 @@ export default function EnhancedCalendar({
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         {view === 'month' && (
           <Calendar
             mode="single"
@@ -194,7 +194,7 @@ export default function EnhancedCalendar({
                 </div>
               )
             }}
-            className="w-full"
+            className="w-full [&_.rdp-table]:w-full [&_.rdp-head_row]:grid [&_.rdp-head_row]:grid-cols-7 [&_.rdp-row]:grid [&_.rdp-row]:grid-cols-7 [&_.rdp-cell]:aspect-square [&_.rdp-cell]:flex [&_.rdp-cell]:items-center [&_.rdp-cell]:justify-center"
           />
         )}
         {view === 'week' && <WeekView />}
