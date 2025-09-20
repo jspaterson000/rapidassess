@@ -74,13 +74,14 @@ export default function Step2_EventDetails({ eventDetails, onUpdate, onNext, onB
                   <div className="h-14 bg-slate-100 rounded-lg animate-pulse"></div>
                 ) : (
                   <Select
-                    value={eventDetails.pds_document_id || ''}
+                    value={eventDetails.pds_document_id || 'none'}
                     onValueChange={(value) => handleChange('pds_document_id', value)}
                   >
                     <SelectTrigger className="h-14 bg-slate-50 border-slate-200 text-base">
                       <SelectValue placeholder="Choose policy document..." />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
                       {pdsDocs.map(doc => (
                         <SelectItem key={doc.id} value={doc.id}>
                           <div className="py-2">
