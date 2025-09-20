@@ -224,14 +224,15 @@ export default function JobDetailsPage() {
         }
         if (job.appointment_date && isAssignedToMe) {
           return (
-            <Button
-              size="sm"
-              onClick={() => navigate(`/StartAssessment?jobId=${job.id}`)}
-              className="bg-slate-700 hover:bg-slate-800 text-white"
-            >
-              <ClipboardCheck className="w-4 h-4 mr-2" />
-              Start Assessment
-            </Button>
+            <Link to={`/StartAssessment?jobId=${job.id}`}>
+              <Button
+                size="sm"
+                className="bg-slate-700 hover:bg-slate-800 text-white"
+              >
+                <ClipboardCheck className="w-4 h-4 mr-2" />
+                Start Assessment
+              </Button>
+            </Link>
           );
         }
         if (isAssignedToMe) {

@@ -227,14 +227,15 @@ export default function JobsPage() {
     }
     if (job.appointment_date) {
       return (
-        <Button
-          size="sm"
-          onClick={() => navigate(`/StartAssessment?jobId=${job.id}`)}
-          className="interactive-button w-full bg-slate-700 hover:bg-slate-800 text-white py-2 text-sm font-medium"
-        >
-          <ClipboardCheck className="w-4 h-4 mr-2" />
-          Start Assessment
-        </Button>
+        <Link to={`/StartAssessment?jobId=${job.id}`} className="w-full">
+          <Button
+            size="sm"
+            className="interactive-button w-full bg-slate-700 hover:bg-slate-800 text-white py-2 text-sm font-medium"
+          >
+            <ClipboardCheck className="w-4 h-4 mr-2" />
+            Start Assessment
+          </Button>
+        </Link>
       );
     }
     // Default for awaiting_booking, new_job
@@ -383,31 +384,20 @@ export default function JobsPage() {
                       Details
                     </Button>
                   </Link>
-                </div>
-                 {canManageJobs && (
-                    <div className="flex-1 group">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleAssignJob(job)}
-                        className="interactive-button w-full py-1.5 text-xs relative overflow-hidden border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                      >
-                        {/* Show assignee name or "Assign" */}
-                        <div className="flex items-center justify-center gap-1.5 group-hover:opacity-0 transition-opacity duration-200">
-                          <UserIcon className="w-3 h-3" />
-                          <span className="truncate">
-                            {getAssigneeName(job.assigned_to) || 'Assign'}
-                          </span>
-                        </div>
-
-                        {/* Show "Re-assign" on hover */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-100">
-                          <UserIcon className="w-3 h-3 mr-1" />
-                          <span>{job.assigned_to ? 'Re-assign' : 'Assign'}</span>
-                        </div>
-                      </Button>
-                    </div>
+                  {canManageJobs && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleAssignJob(job)}
+                      className="interactive-button flex-1 py-1.5 text-xs border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                    >
+                      <UserIcon className="w-3 h-3 mr-1.5" />
+                      <span className="truncate">
+                        {getAssigneeName(job.assigned_to) || 'Assign'}
+                      </span>
+                    </Button>
                   )}
+                </div>
               </div>
             </Card>
             );
