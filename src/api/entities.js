@@ -1,5 +1,4 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { DatabaseService } from '@/lib/database';
 import { AuthService } from '@/lib/auth';
 import { 
   userUpdateSchema, 
@@ -127,42 +126,42 @@ export const User = {
   // CRUD operations
   async list(sortField = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('users', userUpdateSchema).list({}, sortField),
+      () => mockApi.User.list(sortField),
       () => mockApi.User.list(sortField)
     )();
   },
 
   async get(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('users', userUpdateSchema).get(id),
+      () => mockApi.User.get(id),
       () => mockApi.User.get(id)
     )();
   },
 
   async filter(filters = {}, sortField = null, limit = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('users', userUpdateSchema).list(filters, sortField, limit),
+      () => mockApi.User.filter(filters, sortField, limit),
       () => mockApi.User.filter(filters, sortField, limit)
     )();
   },
 
   async create(data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('users', userUpdateSchema).create(data),
+      () => mockApi.User.create(data),
       () => mockApi.User.create(data)
     )();
   },
 
   async update(id, data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('users', userUpdateSchema).update(id, data),
+      () => mockApi.User.update(id, data),
       () => mockApi.User.update(id, data)
     )();
   },
 
   async delete(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('users', userUpdateSchema).delete(id),
+      () => mockApi.User.delete(id),
       () => mockApi.User.delete(id)
     )();
   }
@@ -172,42 +171,42 @@ export const User = {
 export const Company = {
   async list(sortField = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('companies', companySchema).list({}, sortField),
+      () => mockApi.Company.list(sortField),
       () => mockApi.Company.list(sortField)
     )();
   },
 
   async get(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('companies', companySchema).get(id),
+      () => mockApi.Company.get(id),
       () => mockApi.Company.get(id)
     )();
   },
 
   async filter(filters = {}, sortField = null, limit = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('companies', companySchema).list(filters, sortField, limit),
+      () => mockApi.Company.filter(filters, sortField, limit),
       () => mockApi.Company.filter(filters, sortField, limit)
     )();
   },
 
   async create(data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('companies', companySchema).create(data),
+      () => mockApi.Company.create(data),
       () => mockApi.Company.create(data)
     )();
   },
 
   async update(id, data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('companies', companySchema).update(id, data),
+      () => mockApi.Company.update(id, data),
       () => mockApi.Company.update(id, data)
     )();
   },
 
   async delete(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('companies', companySchema).delete(id),
+      () => mockApi.Company.delete(id),
       () => mockApi.Company.delete(id)
     )();
   },
@@ -255,42 +254,42 @@ export const Company = {
 export const Job = {
   async list(sortField = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('jobs', jobSchema).list({}, sortField),
+      () => mockApi.Job.list(sortField),
       () => mockApi.Job.list(sortField)
     )();
   },
 
   async get(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('jobs', jobSchema).get(id),
+      () => mockApi.Job.get(id),
       () => mockApi.Job.get(id)
     )();
   },
 
   async filter(filters = {}, sortField = null, limit = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('jobs', jobSchema).list(filters, sortField, limit),
+      () => mockApi.Job.filter(filters, sortField, limit),
       () => mockApi.Job.filter(filters, sortField, limit)
     )();
   },
 
   async create(data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('jobs', jobSchema).create(data),
+      () => mockApi.Job.create(data),
       () => mockApi.Job.create(data)
     )();
   },
 
   async update(id, data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('jobs', jobSchema).update(id, data),
+      () => mockApi.Job.update(id, data),
       () => mockApi.Job.update(id, data)
     )();
   },
 
   async delete(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('jobs', jobSchema).delete(id),
+      () => mockApi.Job.delete(id),
       () => mockApi.Job.delete(id)
     )();
   },
@@ -346,42 +345,42 @@ export const Job = {
 export const Assessment = {
   async list(sortField = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('assessments', assessmentSchema).list({}, sortField),
+      () => mockApi.Assessment.list(sortField),
       () => mockApi.Assessment.list(sortField)
     )();
   },
 
   async get(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('assessments', assessmentSchema).get(id),
+      () => mockApi.Assessment.get(id),
       () => mockApi.Assessment.get(id)
     )();
   },
 
   async filter(filters = {}, sortField = null, limit = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('assessments', assessmentSchema).list(filters, sortField, limit),
+      () => mockApi.Assessment.filter(filters, sortField, limit),
       () => mockApi.Assessment.filter(filters, sortField, limit)
     )();
   },
 
   async create(data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('assessments', assessmentSchema).create(data),
+      () => mockApi.Assessment.create(data),
       () => mockApi.Assessment.create(data)
     )();
   },
 
   async update(id, data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('assessments', assessmentSchema).update(id, data),
+      () => mockApi.Assessment.update(id, data),
       () => mockApi.Assessment.update(id, data)
     )();
   },
 
   async delete(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('assessments', assessmentSchema).delete(id),
+      () => mockApi.Assessment.delete(id),
       () => mockApi.Assessment.delete(id)
     )();
   },
@@ -393,7 +392,7 @@ export const Assessment = {
           const validatedData = validateInput(assessmentSchema)(assessmentData);
           
           // Create assessment
-          const assessment = await DatabaseService.createCrudService('assessments', assessmentSchema).create(validatedData);
+          const assessment = await mockApi.Assessment.create(validatedData);
 
           // Update job status
           let jobStatus = 'assessed';
@@ -431,42 +430,42 @@ export const Assessment = {
 export const PdsDocument = {
   async list(sortField = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('pds_documents', pdsDocumentSchema).list({}, sortField),
+      () => mockApi.PdsDocument.list(sortField),
       () => mockApi.PdsDocument.list(sortField)
     )();
   },
 
   async get(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('pds_documents', pdsDocumentSchema).get(id),
+      () => mockApi.PdsDocument.get(id),
       () => mockApi.PdsDocument.get(id)
     )();
   },
 
   async filter(filters = {}, sortField = null, limit = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('pds_documents', pdsDocumentSchema).list(filters, sortField, limit),
+      () => mockApi.PdsDocument.filter(filters, sortField, limit),
       () => mockApi.PdsDocument.filter(filters, sortField, limit)
     )();
   },
 
   async create(data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('pds_documents', pdsDocumentSchema).create(data),
+      () => mockApi.PdsDocument.create(data),
       () => mockApi.PdsDocument.create(data)
     )();
   },
 
   async update(id, data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('pds_documents', pdsDocumentSchema).update(id, data),
+      () => mockApi.PdsDocument.update(id, data),
       () => mockApi.PdsDocument.update(id, data)
     )();
   },
 
   async delete(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('pds_documents', pdsDocumentSchema).delete(id),
+      () => mockApi.PdsDocument.delete(id),
       () => mockApi.PdsDocument.delete(id)
     )();
   }
@@ -476,42 +475,42 @@ export const PdsDocument = {
 export const Comment = {
   async list(sortField = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('comments', commentSchema).list({}, sortField),
+      () => mockApi.Comment.list(sortField),
       () => mockApi.Comment.list(sortField)
     )();
   },
 
   async get(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('comments', commentSchema).get(id),
+      () => mockApi.Comment.get(id),
       () => mockApi.Comment.get(id)
     )();
   },
 
   async filter(filters = {}, sortField = null, limit = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('comments', commentSchema).list(filters, sortField, limit),
+      () => mockApi.Comment.filter(filters, sortField, limit),
       () => mockApi.Comment.filter(filters, sortField, limit)
     )();
   },
 
   async create(data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('comments', commentSchema).create(data),
+      () => mockApi.Comment.create(data),
       () => mockApi.Comment.create(data)
     )();
   },
 
   async update(id, data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('comments', commentSchema).update(id, data),
+      () => mockApi.Comment.update(id, data),
       () => mockApi.Comment.update(id, data)
     )();
   },
 
   async delete(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('comments', commentSchema).delete(id),
+      () => mockApi.Comment.delete(id),
       () => mockApi.Comment.delete(id)
     )();
   }
@@ -521,42 +520,42 @@ export const Comment = {
 export const Notification = {
   async list(sortField = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('notifications', notificationSchema).list({}, sortField),
+      () => mockApi.Notification.list(sortField),
       () => mockApi.Notification.list(sortField)
     )();
   },
 
   async get(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('notifications', notificationSchema).get(id),
+      () => mockApi.Notification.get(id),
       () => mockApi.Notification.get(id)
     )();
   },
 
   async filter(filters = {}, sortField = null, limit = null) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('notifications', notificationSchema).list(filters, sortField, limit),
+      () => mockApi.Notification.filter(filters, sortField, limit),
       () => mockApi.Notification.filter(filters, sortField, limit)
     )();
   },
 
   async create(data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('notifications', notificationSchema).create(data),
+      () => mockApi.Notification.create(data),
       () => mockApi.Notification.create(data)
     )();
   },
 
   async update(id, data) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('notifications', notificationSchema).update(id, data),
+      () => mockApi.Notification.update(id, data),
       () => mockApi.Notification.update(id, data)
     )();
   },
 
   async delete(id) {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('notifications', notificationSchema).delete(id),
+      () => mockApi.Notification.delete(id),
       () => mockApi.Notification.delete(id)
     )();
   }
@@ -566,7 +565,7 @@ export const Notification = {
 export const Skill = {
   async list() {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('skills').list(),
+      () => [],
       () => []
     )();
   }
@@ -575,7 +574,7 @@ export const Skill = {
 export const Industry = {
   async list() {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('industries').list(),
+      () => [],
       () => []
     )();
   }
@@ -584,7 +583,7 @@ export const Industry = {
 export const Location = {
   async list() {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('locations').list(),
+      () => [],
       () => []
     )();
   }
@@ -593,7 +592,7 @@ export const Location = {
 export const AssessmentQuestion = {
   async list() {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('assessment_questions').list(),
+      () => [],
       () => []
     )();
   }
@@ -602,7 +601,7 @@ export const AssessmentQuestion = {
 export const AssessmentResponse = {
   async list() {
     return useSupabaseOrMock(
-      () => DatabaseService.createCrudService('assessment_responses').list(),
+      () => [],
       () => []
     )();
   }
