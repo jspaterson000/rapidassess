@@ -504,6 +504,7 @@ export default function Dashboard() {
   }
 
   return (
+    <>
     <div className="p-6 md:p-10 min-h-screen space-y-8">
       {/* Header */}
       <header className="animate-fade-in-up">
@@ -811,6 +812,7 @@ export default function Dashboard() {
         job={jobToDecline}
         onDeclineComplete={handleDeclineComplete}
       />
+    </>
     </div>
   );
 }
