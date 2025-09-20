@@ -106,7 +106,8 @@ Important:
       const details = {};
       const maxAssessmentsPerDay = companyData?.max_assessments_per_day || Infinity;
 
-      const distanceAndAvailabilityPromises = potentialAssessors.map(async (assessor) => {
+      // Process assessors sequentially to avoid overwhelming the AI service
+      for (const assessor of potentialAssessors) {
         const jobsTodayCount = todayAssessmentsData.filter(
           assessment => assessment.assessor_id === assessor.id
         ).length;
@@ -115,15 +116,31 @@ Important:
           ? { status: 'Unavailable', reason: `Reached daily limit (${jobsTodayCount}/${maxAssessmentsPerDay})` }
           : { status: 'Available', reason: `${jobsTodayCount}/${maxAssessmentsPerDay} jobs today` };
 
-        const distanceData = await calculateDistance(assessor, job);
-        details[assessor.id] = { ...distanceData, availability, name: assessor.full_name, location: assessor.base_location };
-      });
+        try {
+          const distanceData = await calculateDistance(assessor, job);
+          details[assessor.id] = { ...distanceData, availability, name: assessor.full_name, location: assessor.base_location };
+        } catch (error) {
+          console.error(`Failed to calculate distance for ${assessor.full_name}:`, error);
+          details[assessor.id] = { 
+            error: "Distance calculation failed", 
+            availability, 
+            name: assessor.full_name, 
+            location: assessor.base_location 
+          };
+        }
+        
+        // Update the UI progressively as each assessor is processed
+        setAssessorDetails({ ...details });
+      }
 
-      await Promise.all(distanceAndAvailabilityPromises);
+      // Final update to ensure all data is set
       setAssessorDetails(details);
 
     } catch (error) {
       console.error("Error loading data for job assignment dialog:", error);
+      // Set a fallback state so the UI doesn't stay stuck
+      setAssessors([]);
+      setAssessorDetails({});
     } finally {
       setLoading(false);
     }
