@@ -99,20 +99,10 @@ const mockUploadFile = async ({ file }) => {
 
 const mockUploadPrivateFile = async ({ file }) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
-  // Store file content in localStorage for demo purposes
   const fileId = Math.random().toString(36).substr(2, 9);
   const fileUri = `private://files/${fileId}-${file.name}`;
   
-  // Read file content and store it
-  const reader = new FileReader();
-  const fileContent = await new Promise((resolve, reject) => {
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsText(file);
-  });
-  
-  // Store file content in localStorage
-  localStorage.setItem(`file_content_${fileId}`, fileContent);
+  // Store only file metadata in localStorage to avoid quota issues
   localStorage.setItem(`file_metadata_${fileId}`, JSON.stringify({
     name: file.name,
     type: file.type,
@@ -126,22 +116,7 @@ const mockUploadPrivateFile = async ({ file }) => {
 const mockCreateFileSignedUrl = async ({ file_uri }) => {
   await new Promise(resolve => setTimeout(resolve, 500));
   
-  // Extract file ID from URI
-  const fileId = file_uri.match(/private:\/\/files\/([^-]+)/)?.[1];
-  if (fileId) {
-    const fileContent = localStorage.getItem(`file_content_${fileId}`);
-    const fileMetadata = localStorage.getItem(`file_metadata_${fileId}`);
-    
-    if (fileContent && fileMetadata) {
-      // Create a data URL that contains the actual file content
-      const metadata = JSON.parse(fileMetadata);
-      const blob = new Blob([fileContent], { type: metadata.type || 'text/plain' });
-      const dataUrl = URL.createObjectURL(blob);
-      return { signed_url: dataUrl };
-    }
-  }
-  
-  // Fallback to mock URL if file not found
+  // Return a generic mock signed URL without retrieving file content
   return { signed_url: `https://example.com/signed/${Math.random().toString(36).substr(2, 9)}` };
 };
 
