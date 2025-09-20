@@ -1,13 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Assessment } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Job } from "@/api/entities";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft } from "lucide-react";
 
-import AssessmentStepper from "../components/assessment/AssessmentStepper";
 import Step1_SelectJob from "../components/assessment/Step1_SelectJob";
 import Step2_EventDetails from "../components/assessment/Step2_EventDetails";
 import Step3_DamageAreas from "../components/assessment/Step3_DamageAreas";
@@ -37,7 +34,7 @@ export default function StartAssessment() {
   const location = useLocation();
   const jobId = new URLSearchParams(location.search).get('jobId');
   
-  // Always start at step 1 if jobId is provided, otherwise step 0
+  // Start at step 1 if jobId provided (skip job selection), otherwise step 0
   const [currentStep, setCurrentStep] = useState(jobId ? 1 : 0);
   const [user, setUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,7 +51,7 @@ export default function StartAssessment() {
     ai_analysis: null,
     status: 'in_progress',
     assessment_date: new Date().toISOString(),
-    total_estimate: 0, // Initialize total_estimate
+    total_estimate: 0,
   });
 
   useEffect(() => {
@@ -65,7 +62,6 @@ export default function StartAssessment() {
         setAssessmentData(prev => ({ ...prev, assessor_id: currentUser.id }));
         
         if (jobId) {
-          // When jobId is provided, load the job data
           try {
             const jobData = await Job.get(jobId);
             setAssessmentData(prev => ({
@@ -79,7 +75,6 @@ export default function StartAssessment() {
             }));
           } catch (error) {
             console.error("Error loading job:", error);
-            // If job can't be loaded, go to job selection
             setCurrentStep(0);
           }
         }
@@ -103,13 +98,20 @@ export default function StartAssessment() {
   };
   
   const handleBack = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 0));
+    if (currentStep === 0) {
+      navigate(createPageUrl("Assessments"));
+    } else {
+      setCurrentStep(prev => Math.max(prev - 1, 0));
+    }
   };
 
   const handleJobSelect = (job) => {
     updateAssessmentData('job_id', job.id);
-    updateAssessmentData('pds_document_id', job.pds_document_id);
-    updateAssessmentData('event_details', { ...assessmentData.event_details, event_type: job.event_type });
+    updateAssessmentData('event_details', { 
+      ...assessmentData.event_details, 
+      event_type: job.event_type,
+      pds_document_id: job.pds_document_id
+    });
     handleNext();
   };
 
@@ -117,26 +119,25 @@ export default function StartAssessment() {
     setPolicyReviewResult(result);
     updateAssessmentData('ai_analysis', result);
     
-    // Navigate to appropriate next step based on result
     if (result.recommendation === 'additional_info_needed') {
-      setCurrentStep(6); // Step7_AdditionalInfo
+      setCurrentStep(6); // Additional Info
     } else if (result.recommendation === 'proceed') {
-      setCurrentStep(7); // Step8_ScopeOfWorks
+      setCurrentStep(7); // Scope of Works
     } else {
-      setCurrentStep(9); // Step10_Submission (skip scope and report gen)
+      setCurrentStep(9); // Skip to Submission
     }
   };
 
   const handleAdditionalInfoComplete = () => {
-    setCurrentStep(7); // Move to Scope of Works
+    setCurrentStep(7); // Scope of Works
   };
 
   const handleScopeComplete = () => {
-    setCurrentStep(8); // Move to Report Generation
+    setCurrentStep(8); // Report Generation
   };
 
   const handleReportComplete = () => {
-    setCurrentStep(9); // Move to Final Submission
+    setCurrentStep(9); // Submission
   };
 
   const handleFinalSubmit = async (enhancedAssessmentData) => {
@@ -151,7 +152,6 @@ export default function StartAssessment() {
         status: assessmentStatus
       };
       
-      // Create the assessment with the enhanced data including scope and total
       const createdAssessment = await Assessment.create(finalAssessmentData);
       
       let newJobStatus = 'assessed';
@@ -161,7 +161,6 @@ export default function StartAssessment() {
         newJobStatus = 'awaiting_insurer';
       }
       
-      // Update the job with the assessment data and total estimate
       if (enhancedAssessmentData.job_id) {
         await Job.update(enhancedAssessmentData.job_id, { 
           status: newJobStatus,
@@ -171,7 +170,7 @@ export default function StartAssessment() {
         });
       }
       
-      navigate(createPageUrl("Dashboard")); // Navigate to Dashboard after successful submission
+      navigate(createPageUrl("Dashboard"));
     } catch (error) {
       console.error("Error submitting assessment:", error);
       alert("Failed to submit assessment. Please try again.");
@@ -180,42 +179,10 @@ export default function StartAssessment() {
     }
   };
 
-  const getVisibleSteps = () => {
-    // Show only relevant steps based on policy review result
-    let visibleSteps = steps.slice(0, 6); 
-    
-    if (policyReviewResult?.recommendation === 'additional_info_needed') {
-      visibleSteps.push('Additional Info');
-      // If we are past the Additional Info step, show Scope of Works and Generate Report
-      // This logic is for the stepper visibility, not for enabling navigation directly.
-      // The currentStep value will drive which component is rendered.
-      if (currentStep >= 7) { 
-        visibleSteps.push('Scope of Works');
-        if (currentStep >= 8) {
-          visibleSteps.push('Generate Report');
-        }
-      }
-    }
-    
-    if (policyReviewResult?.recommendation === 'proceed') {
-      visibleSteps.push('Scope of Works', 'Generate Report');
-    }
-    
-    // Ensure "Submit" is always the last visible step
-    if (!visibleSteps.includes('Submit')) {
-        visibleSteps.push('Submit');
-    }
-    return visibleSteps;
-  };
-
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return (
-          <div className="px-4 md:px-0">
-            <Step1_SelectJob onJobSelect={handleJobSelect} />
-          </div>
-        );
+        return <Step1_SelectJob onJobSelect={handleJobSelect} />;
       case 1:
         return (
           <Step2_EventDetails
@@ -236,7 +203,7 @@ export default function StartAssessment() {
         );
       case 3:
         return (
-           <Step4_Attachments
+          <Step4_Attachments
             photos={assessmentData.photos}
             documents={assessmentData.documents}
             onPhotosUpdate={(photos) => updateAssessmentData('photos', photos)}
@@ -302,99 +269,8 @@ export default function StartAssessment() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <style>
-        {`
-          @keyframes slideInContent {
-            from {
-              opacity: 0;
-              transform: translateY(12px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-
-          .content-enter {
-            animation: slideInContent 0.4s ease-out;
-          }
-
-          .fade-in {
-            animation: fadeIn 0.3s ease-out;
-          }
-
-          /* Mobile optimized touch targets */
-          @media (max-width: 768px) {
-            .mobile-touch {
-              min-height: 44px;
-              min-width: 44px;
-            }
-          }
-
-          /* Clean button interactions */
-          .btn-clean {
-            transition: all 0.2s ease;
-          }
-
-          .btn-clean:active {
-            transform: scale(0.98);
-          }
-
-          /* Tactile card feel */
-          .card-tactile {
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-          }
-
-          .card-tactile:active {
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            transform: translateY(1px);
-          }
-        `}
-      </style>
-
-      <div className="p-4 md:p-6 lg:p-8">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Back Button */}
-          <button
-            onClick={() => navigate(createPageUrl("Assessments"))}
-            className="fade-in inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="font-medium">Back to Assessments</span>
-          </button>
-
-          {/* Main Assessment Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            {/* Progress Header */}
-            <div className="px-6 py-4 border-b border-gray-100">
-              <AssessmentStepper 
-                steps={getVisibleSteps()} 
-                currentStep={currentStep}
-                onStepClick={(stepIndex) => {
-                  // Allow navigation to completed steps only
-                  if (stepIndex <= currentStep) {
-                    setCurrentStep(stepIndex);
-                  }
-                }}
-              />
-            </div>
-
-            {/* Content */}
-            <div className="p-4 md:p-6 lg:p-8">
-              <div className="content-enter">
-                {renderStep()}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-50">
+      {renderStep()}
     </div>
   );
 }
