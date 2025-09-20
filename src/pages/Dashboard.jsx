@@ -812,7 +812,7 @@ export default function Dashboard() {
         job={jobToDecline}
         onDeclineComplete={handleDeclineComplete}
       />
-    </>
     </div>
+    </>
   );
 }
