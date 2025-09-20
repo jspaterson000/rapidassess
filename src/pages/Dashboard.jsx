@@ -455,7 +455,7 @@ export default function Dashboard() {
     }
     if (job.appointment_date) {
       return (
-        <Link to={`/StartAssessment?jobId=${job.id}`} className="inline-block">
+        <Link to={createPageUrl(`StartAssessment?jobId=${job.id}`)} className="inline-block">
           <Button size="sm" className="bg-slate-700 hover:bg-slate-800 text-white">
             <ClipboardCheck className="w-4 h-4 mr-2" />
             Start Assessment

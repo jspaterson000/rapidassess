@@ -227,7 +227,7 @@ export default function JobsPage() {
     }
     if (job.appointment_date) {
       return (
-        <Link to={`/StartAssessment?jobId=${job.id}`} className="w-full">
+        <Link to={createPageUrl(`StartAssessment?jobId=${job.id}`)} className="w-full">
           <Button
             size="sm"
             className="interactive-button w-full bg-slate-700 hover:bg-slate-800 text-white py-2 text-sm font-medium"
