@@ -18,7 +18,7 @@ import {
   Activity,
   Target,
   MapPin,
-  Calendar,
+  Calendar as CalendarIcon,
   User as UserIcon,
   Phone,
   X,
@@ -166,7 +166,7 @@ function WorkflowMetrics({ userJobs, userAssessments }) {
           <MetricCard
             title="Tomorrow"
             value={attendTomorrow}
-            icon={Calendar}
+            icon={CalendarIcon}
             color={{ bg: 'bg-purple-50', text: 'text-purple-600' }}
             description="Your appointments scheduled for tomorrow"
           />
@@ -246,7 +246,7 @@ export default function Dashboard() {
       <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-slate-600" />
+            <CalendarIcon className="w-5 h-5 text-slate-600" />
             Schedule Calendar
           </CardTitle>
         </CardHeader>
@@ -617,7 +617,7 @@ export default function Dashboard() {
     // Default for awaiting_booking, new_job
     return (
         <Button size="sm" onClick={() => setJobToBook(job)} className="bg-slate-700 hover:bg-slate-800 text-white">
-            <Calendar className="w-4 h-4 mr-2" />
+            <CalendarIcon className="w-4 h-4 mr-2" />
             Book Customer
         </Button>
     );
@@ -733,12 +733,12 @@ export default function Dashboard() {
                       <Activity className="w-4 h-4 text-slate-400 flex-shrink-0" />
                       <span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span>
                       <span className="text-slate-400">•</span>
-                      <Calendar className="w-4 h-4 text-slate-400" />
+                      <CalendarIcon className="w-4 h-4 text-slate-400" />
                       <span>{new Date(job.date_of_loss).toLocaleDateString()}</span>
                     </div>
                     {job.appointment_date && (
                         <div className="flex items-center gap-2 text-sm text-slate-600 font-medium bg-green-50 p-2 rounded-lg border border-green-200">
-                            <Calendar className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <CalendarIcon className="w-4 h-4 text-green-600 flex-shrink-0" />
                             <span>Booked for: {format(new Date(job.appointment_date), 'EEE, d MMM yyyy @ p')}</span>
                         </div>
                     )}
@@ -812,7 +812,7 @@ export default function Dashboard() {
                         <Activity className="w-4 h-4 text-slate-400 flex-shrink-0" />
                         <span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span>
                         <span className="text-slate-400">•</span>
-                        <Calendar className="w-4 h-4 text-slate-400" />
+                        <CalendarIcon className="w-4 h-4 text-slate-400" />
                         <span>{new Date(job.date_of_loss).toLocaleDateString()}</span>
                       </div>
                       {job.customer_phone && (
@@ -888,8 +888,8 @@ export default function Dashboard() {
                   {assessmentOverdue && (<div className="flex items-center gap-2 text-sm text-red-700 bg-red-50 p-2 rounded-lg mb-3 animate-pulse border border-red-200"><AlertTriangle className="w-4 h-4 flex-shrink-0" /><span>Assessment is overdue. Please complete it soon.</span></div>)}
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-slate-600"><MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" /><span className="truncate">{job.property_address}</span></div>
-                    <div className="flex items-center gap-2 text-sm text-slate-600"><Activity className="w-4 h-4 text-slate-400 flex-shrink-0" /><span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span><span className="text-slate-400">•</span><Calendar className="w-4 h-4 text-slate-400" /><span>{new Date(job.date_of_loss).toLocaleDateString()}</span></div>
-                    {job.appointment_date && (<div className="flex items-center gap-2 text-sm text-slate-600 font-medium bg-green-50 p-2 rounded-lg border border-green-200"><Calendar className="w-4 h-4 text-green-600 flex-shrink-0" /><span>Booked for: {format(new Date(job.appointment_date), 'EEE, d MMM yyyy @ p')}</span></div>)}
+                    <div className="flex items-center gap-2 text-sm text-slate-600"><Activity className="w-4 h-4 text-slate-400 flex-shrink-0" /><span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span><span className="text-slate-400">•</span><CalendarIcon className="w-4 h-4 text-slate-400" /><span>{new Date(job.date_of_loss).toLocaleDateString()}</span></div>
+                    {job.appointment_date && (<div className="flex items-center gap-2 text-sm text-slate-600 font-medium bg-green-50 p-2 rounded-lg border border-green-200"><CalendarIcon className="w-4 h-4 text-green-600 flex-shrink-0" /><span>Booked for: {format(new Date(job.appointment_date), 'EEE, d MMM yyyy @ p')}</span></div>)}
                     {job.customer_phone && (<div className="flex items-center gap-2 text-sm text-slate-600"><Phone className="w-4 h-4 text-slate-400 flex-shrink-0" /><span>{job.customer_phone}</span></div>)}
                   </div>
                   <div className="flex items-center justify-between pt-3 border-t border-slate-200/90">
