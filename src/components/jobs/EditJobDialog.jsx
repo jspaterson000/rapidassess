@@ -51,7 +51,7 @@ export default function EditJobDialog({ open, onClose, onSubmit, job }) {
         insurer: job.insurer || '',
         policy_number: job.policy_number || '',
         notes: job.notes || '',
-        pds_document_id: job.pds_document_id || 'none'
+        pds_document_id: job.pds_document_id || ''
       });
 
       const loadPds = async () => {
@@ -156,7 +156,7 @@ export default function EditJobDialog({ open, onClose, onSubmit, job }) {
                       <SelectValue placeholder="Select PDS..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value={null}>None</SelectItem>
                       {pdsDocs.map(doc => (
                         <SelectItem key={doc.id} value={doc.id}>
                           {doc.name} ({doc.insurer} v{doc.version})

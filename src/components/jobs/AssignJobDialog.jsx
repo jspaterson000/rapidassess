@@ -188,11 +188,11 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
   }, [open, job, loadInitialData]);
 
   const handleAssignment = async () => {
-    if (selectedUserId === undefined || selectedUserId === '') return;
+    if (selectedUserId === undefined) return;
 
     setIsAssigning(true);
     try {
-      const newAssignedTo = selectedUserId === 'unassign' ? null : selectedUserId;
+      let newStatus;
       if (selectedUserId) {
         if (job.appointment_date) {
           newStatus = 'awaiting_attendance';
@@ -262,7 +262,7 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
   };
 
   const isButtonDisabled = () => {
-    return isAssigning || (!job?.assigned_to && !selectedUserId) || selectedUserId === '';
+    return isAssigning || (!job?.assigned_to && !selectedUserId);
   };
   
   if (!job) return null;
@@ -378,9 +378,11 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
         
         <div className="space-y-3 py-2 max-h-[50vh] overflow-y-auto">
           {loading ? (
-            <div className="text-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
-              <p className="text-slate-600 text-sm font-medium">Loading assessors...</p>
+            <div className="space-y-3">
+              <div className="text-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
+                <p className="text-slate-600 text-sm font-medium">Loading assessors...</p>
+              </div>
             </div>
           ) : (
             <div className="space-y-2">

@@ -29,7 +29,7 @@ export default function CreateJobDialog({ open, onClose, onSubmit }) {
     insurer: '',
     policy_number: '',
     notes: '',
-    pds_document_id: 'none'
+    pds_document_id: ''
   });
 
   const [pdsDocs, setPdsDocs] = useState([]);
@@ -77,7 +77,7 @@ export default function CreateJobDialog({ open, onClose, onSubmit }) {
         insurer: '',
         policy_number: '',
         notes: '',
-        pds_document_id: 'none'
+        pds_document_id: ''
       });
       onClose();
     } catch (error) {
@@ -158,7 +158,7 @@ export default function CreateJobDialog({ open, onClose, onSubmit }) {
                       <SelectValue placeholder="Select PDS..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value={""}>None</SelectItem> {/* Use empty string for "None" */}
                       {pdsDocs.map(doc => (
                         <SelectItem key={doc.id} value={doc.id}>
                           {doc.name} ({doc.insurer} v{doc.version})
