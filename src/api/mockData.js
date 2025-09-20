@@ -122,7 +122,7 @@ export const mockJobs = [
     pds_document_id: 'pds-1',
     created_date: '2024-01-16T07:00:00Z',
     updated_date: '2024-01-16T07:00:00Z'
-  }
+  },
   {
     id: 'job-4',
     claim_number: 'CLM-2024-004',
