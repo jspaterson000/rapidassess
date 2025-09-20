@@ -65,7 +65,7 @@ export const mockJobs = [
     customer_email: 'emma.thompson@email.com',
     property_address: '45 Ocean View Drive, Bondi Beach NSW 2026',
     event_type: 'storm',
-    date_of_loss: '2024-01-15',
+    date_of_loss: '2025-09-15',
     priority: 'high',
     status: 'awaiting_booking',
     insurer: 'Global Insurance Co',
@@ -73,11 +73,11 @@ export const mockJobs = [
     notes: 'Roof damage from fallen tree during storm',
     company_id: 'company-1',
     assigned_to: 'user-3',
-    time_assigned: '2024-01-16T09:00:00Z',
+    time_assigned: '2025-09-16T09:00:00Z',
     appointment_date: null,
     pds_document_id: 'pds-1',
-    created_date: '2024-01-16T08:00:00Z',
-    updated_date: '2024-01-16T09:00:00Z'
+    created_date: '2025-09-16T08:00:00Z',
+    updated_date: '2025-09-16T09:00:00Z'
   },
   {
     id: 'job-2',
@@ -87,7 +87,7 @@ export const mockJobs = [
     customer_email: 'david.wilson@email.com',
     property_address: '78 Harbour Street, Circular Quay NSW 2000',
     event_type: 'escape_of_liquid',
-    date_of_loss: '2024-01-14',
+    date_of_loss: '2025-09-14',
     priority: 'urgent',
     status: 'awaiting_attendance',
     insurer: 'Premium Insurance Ltd',
@@ -95,11 +95,11 @@ export const mockJobs = [
     notes: 'Burst pipe causing water damage',
     company_id: 'company-1',
     assigned_to: 'user-2',
-    time_assigned: '2024-01-15T10:30:00Z',
-    appointment_date: '2024-01-18T14:00:00Z',
+    time_assigned: '2025-09-15T10:30:00Z',
+    appointment_date: '2025-09-25T14:00:00Z',
     pds_document_id: 'pds-1',
-    created_date: '2024-01-15T08:30:00Z',
-    updated_date: '2024-01-15T10:30:00Z'
+    created_date: '2025-09-15T08:30:00Z',
+    updated_date: '2025-09-15T10:30:00Z'
   },
   {
     id: 'job-3',
@@ -109,7 +109,7 @@ export const mockJobs = [
     customer_email: 'lisa.chen@email.com',
     property_address: '92 Park Avenue, Surry Hills NSW 2010',
     event_type: 'fire',
-    date_of_loss: '2024-01-13',
+    date_of_loss: '2025-09-13',
     priority: 'medium',
     status: 'new_job',
     insurer: 'Secure Insurance Group',
@@ -120,8 +120,8 @@ export const mockJobs = [
     time_assigned: null,
     appointment_date: null,
     pds_document_id: 'pds-1',
-    created_date: '2024-01-16T07:00:00Z',
-    updated_date: '2024-01-16T07:00:00Z'
+    created_date: '2025-09-16T07:00:00Z',
+    updated_date: '2025-09-16T07:00:00Z'
   },
   {
     id: 'job-4',
@@ -131,7 +131,7 @@ export const mockJobs = [
     customer_email: 'michael.rodriguez@email.com',
     property_address: '156 Collins Street, Melbourne VIC 3000',
     event_type: 'storm',
-    date_of_loss: '2024-01-17',
+    date_of_loss: '2025-09-17',
     priority: 'urgent',
     status: 'awaiting_booking',
     insurer: 'Australian Insurance Group',
@@ -139,11 +139,11 @@ export const mockJobs = [
     notes: 'Hail damage to roof and windows during severe storm',
     company_id: 'company-1',
     assigned_to: 'user-1',
-    time_assigned: '2024-01-17T11:15:00Z',
+    time_assigned: '2025-09-17T11:15:00Z',
     appointment_date: null,
     pds_document_id: 'pds-1',
-    created_date: '2024-01-17T10:00:00Z',
-    updated_date: '2024-01-17T11:15:00Z'
+    created_date: '2025-09-17T10:00:00Z',
+    updated_date: '2025-09-17T11:15:00Z'
   },
   {
     id: 'job-5',
@@ -153,7 +153,7 @@ export const mockJobs = [
     customer_email: 'sarah.mitchell@email.com',
     property_address: '23 Queen Street, Brisbane QLD 4000',
     event_type: 'impact',
-    date_of_loss: '2024-01-16',
+    date_of_loss: '2025-09-16',
     priority: 'high',
     status: 'awaiting_attendance',
     insurer: 'National Insurance Corp',
@@ -161,11 +161,11 @@ export const mockJobs = [
     notes: 'Vehicle impact damage to front fence and garden',
     company_id: 'company-1',
     assigned_to: 'user-3',
-    time_assigned: '2024-01-16T14:20:00Z',
-    appointment_date: '2024-01-19T10:30:00Z',
+    time_assigned: '2025-09-16T14:20:00Z',
+    appointment_date: '2025-09-26T10:30:00Z',
     pds_document_id: 'pds-1',
-    created_date: '2024-01-16T13:45:00Z',
-    updated_date: '2024-01-16T14:20:00Z'
+    created_date: '2025-09-16T13:45:00Z',
+    updated_date: '2025-09-16T14:20:00Z'
   },
   {
     id: 'job-6',
@@ -175,7 +175,7 @@ export const mockJobs = [
     customer_email: 'james.patterson@email.com',
     property_address: '89 Chapel Street, South Yarra VIC 3141',
     event_type: 'escape_of_liquid',
-    date_of_loss: '2024-01-18',
+    date_of_loss: '2025-09-18',
     priority: 'medium',
     status: 'new_job',
     insurer: 'Elite Insurance Services',
@@ -186,8 +186,8 @@ export const mockJobs = [
     time_assigned: null,
     appointment_date: null,
     pds_document_id: 'pds-1',
-    created_date: '2024-01-18T08:30:00Z',
-    updated_date: '2024-01-18T08:30:00Z'
+    created_date: '2025-09-18T08:30:00Z',
+    updated_date: '2025-09-18T08:30:00Z'
   },
   {
     id: 'job-7',
@@ -197,7 +197,7 @@ export const mockJobs = [
     customer_email: 'rebecca.foster@email.com',
     property_address: '67 Flinders Street, Adelaide SA 5000',
     event_type: 'fire',
-    date_of_loss: '2024-01-12',
+    date_of_loss: '2025-09-12',
     priority: 'urgent',
     status: 'assessed',
     insurer: 'Premier Insurance Ltd',
@@ -205,11 +205,11 @@ export const mockJobs = [
     notes: 'Electrical fire in garage, smoke damage to house',
     company_id: 'company-1',
     assigned_to: 'user-2',
-    time_assigned: '2024-01-13T09:00:00Z',
-    appointment_date: '2024-01-15T13:00:00Z',
+    time_assigned: '2025-09-13T09:00:00Z',
+    appointment_date: '2025-09-15T13:00:00Z',
     pds_document_id: 'pds-1',
-    created_date: '2024-01-12T16:30:00Z',
-    updated_date: '2024-01-15T16:00:00Z'
+    created_date: '2025-09-12T16:30:00Z',
+    updated_date: '2025-09-15T16:00:00Z'
   },
   {
     id: 'job-8',
@@ -439,7 +439,7 @@ export const mockJobs = [
     customer_email: 'mark.johnson@email.com',
     property_address: '234 Elizabeth Street, Brisbane QLD 4000',
     event_type: 'escape_of_liquid',
-    date_of_loss: '2024-01-29',
+    date_of_loss: '2025-09-19',
     priority: 'medium',
     status: 'awaiting_booking',
     insurer: 'Queensland Insurance Ltd',
@@ -447,11 +447,11 @@ export const mockJobs = [
     notes: 'Dishwasher malfunction caused kitchen flooding',
     company_id: 'company-1',
     assigned_to: 'user-1',
-    time_assigned: '2024-01-29T15:20:00Z',
+    time_assigned: '2025-09-19T15:20:00Z',
     appointment_date: null,
     pds_document_id: 'pds-1',
-    created_date: '2024-01-29T14:30:00Z',
-    updated_date: '2024-01-29T15:20:00Z'
+    created_date: '2025-09-19T14:30:00Z',
+    updated_date: '2025-09-19T15:20:00Z'
   },
   {
     id: 'job-19',
@@ -461,7 +461,7 @@ export const mockJobs = [
     customer_email: 'stephanie.clark@email.com',
     property_address: '56 Hunter Street, Newcastle NSW 2300',
     event_type: 'storm',
-    date_of_loss: '2024-01-30',
+    date_of_loss: '2025-09-20',
     priority: 'urgent',
     status: 'new_job',
     insurer: 'Hunter Valley Insurance',
@@ -472,8 +472,8 @@ export const mockJobs = [
     time_assigned: null,
     appointment_date: null,
     pds_document_id: 'pds-1',
-    created_date: '2024-01-30T16:45:00Z',
-    updated_date: '2024-01-30T16:45:00Z'
+    created_date: '2025-09-20T16:45:00Z',
+    updated_date: '2025-09-20T16:45:00Z'
   },
   {
     id: 'job-20',
@@ -483,7 +483,7 @@ export const mockJobs = [
     customer_email: 'thomas.martinez@email.com',
     property_address: '123 Lonsdale Street, Melbourne VIC 3000',
     event_type: 'fire',
-    date_of_loss: '2024-01-31',
+    date_of_loss: '2025-09-21',
     priority: 'high',
     status: 'awaiting_attendance',
     insurer: 'Melbourne Insurance Group',
@@ -491,11 +491,11 @@ export const mockJobs = [
     notes: 'Apartment fire caused by faulty heater',
     company_id: 'company-1',
     assigned_to: 'user-3',
-    time_assigned: '2024-01-31T11:30:00Z',
-    appointment_date: '2025-02-01T10:00:00Z',
+    time_assigned: '2025-09-21T11:30:00Z',
+    appointment_date: '2025-09-27T10:00:00Z',
     pds_document_id: 'pds-1',
-    created_date: '2024-01-31T10:15:00Z',
-    updated_date: '2024-01-31T11:30:00Z'
+    created_date: '2025-09-21T10:15:00Z',
+    updated_date: '2025-09-21T11:30:00Z'
   }
 ];
 
@@ -504,7 +504,7 @@ export const mockAssessments = [
     id: 'assessment-1',
     job_id: 'job-2',
     assessor_id: 'user-2',
-    assessment_date: '2024-01-17T14:00:00Z',
+    assessment_date: '2025-09-17T14:00:00Z',
     status: 'completed',
     event_details: {
       event_type: 'escape_of_liquid',
@@ -537,13 +537,13 @@ export const mockAssessments = [
       }
     ],
     total_estimate: 1275,
-    created_date: '2024-01-17T14:00:00Z'
+    created_date: '2025-09-17T14:00:00Z'
   },
   {
     id: 'assessment-2',
     job_id: 'job-7',
     assessor_id: 'user-2',
-    assessment_date: '2024-01-15T13:00:00Z',
+    assessment_date: '2025-09-15T13:00:00Z',
     status: 'completed',
     event_details: {
       event_type: 'fire',
@@ -589,13 +589,13 @@ export const mockAssessments = [
       }
     ],
     total_estimate: 30400,
-    created_date: '2024-01-15T16:00:00Z'
+    created_date: '2025-09-15T16:00:00Z'
   },
   {
     id: 'assessment-3',
     job_id: 'job-8',
     assessor_id: 'user-1',
-    assessment_date: '2024-01-20T09:00:00Z',
+    assessment_date: '2025-09-20T09:00:00Z',
     status: 'completed',
     event_details: {
       event_type: 'storm',
@@ -635,13 +635,13 @@ export const mockAssessments = [
       }
     ],
     total_estimate: 290,
-    created_date: '2024-01-21T15:30:00Z'
+    created_date: '2025-09-21T15:30:00Z'
   },
   {
     id: 'assessment-4',
     job_id: 'job-17',
     assessor_id: 'user-3',
-    assessment_date: '2024-01-29T09:30:00Z',
+    assessment_date: '2025-09-19T09:30:00Z',
     status: 'completed',
     event_details: {
       event_type: 'impact',
@@ -681,13 +681,13 @@ export const mockAssessments = [
       }
     ],
     total_estimate: 7050,
-    created_date: '2024-01-30T17:45:00Z'
+    created_date: '2025-09-30T17:45:00Z'
   },
   {
     id: 'assessment-5',
     job_id: 'job-10',
     assessor_id: 'user-3',
-    assessment_date: '2024-01-22T11:00:00Z',
+    assessment_date: '2025-09-22T11:00:00Z',
     status: 'pending_review',
     event_details: {
       event_type: 'escape_of_liquid',
@@ -720,7 +720,7 @@ export const mockAssessments = [
       }
     ],
     total_estimate: 1440,
-    created_date: '2024-01-22T14:30:00Z'
+    created_date: '2025-09-22T14:30:00Z'
   }
 ];
 
