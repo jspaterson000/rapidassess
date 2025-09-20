@@ -35,17 +35,15 @@ const steps = [
 export default function StartAssessment() {
   const navigate = useNavigate();
   const location = useLocation();
+  const jobId = new URLSearchParams(location.search).get('jobId');
   
-  // Initialize currentStep based on whether jobId is provided
-  const [currentStep, setCurrentStep] = useState(() => {
-    const jobId = new URLSearchParams(location.search).get('jobId');
-    return jobId ? 1 : 0; // Start at step 1 (Event Details) if jobId provided, otherwise step 0 (Job Selection)
-  });
+  // Always start at step 1 if jobId is provided, otherwise step 0
+  const [currentStep, setCurrentStep] = useState(jobId ? 1 : 0);
   const [user, setUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [policyReviewResult, setPolicyReviewResult] = useState(null);
-  const [assessmentData, setAssessmentData] = useState(() => ({
-    job_id: new URLSearchParams(location.search).get('jobId') || null,
+  const [assessmentData, setAssessmentData] = useState({
+    job_id: jobId || null,
     assessor_id: null,
     event_details: {},
     damage_areas: [],
@@ -57,7 +55,7 @@ export default function StartAssessment() {
     status: 'in_progress',
     assessment_date: new Date().toISOString(),
     total_estimate: 0, // Initialize total_estimate
-  }));
+  });
 
   useEffect(() => {
     const loadUser = async () => {
@@ -66,9 +64,8 @@ export default function StartAssessment() {
         setUser(currentUser);
         setAssessmentData(prev => ({ ...prev, assessor_id: currentUser.id }));
         
-        const jobId = new URLSearchParams(location.search).get('jobId');
         if (jobId) {
-          // When jobId is provided, load the job and skip to Event Details
+          // When jobId is provided, load the job data
           try {
             const jobData = await Job.get(jobId);
             setAssessmentData(prev => ({
@@ -80,12 +77,16 @@ export default function StartAssessment() {
                 event_type: jobData.event_type 
               }
             }));
-            // currentStep is already set to 1 in the initial state
+            // Ensure we're on step 1 (Event Details)
+            setCurrentStep(1);
           } catch (error) {
             console.error("Error loading job:", error);
-            // If job can't be loaded, stay at job selection
+            // If job can't be loaded, go to job selection
             setCurrentStep(0);
           }
+        } else {
+          // No jobId provided, start at job selection
+          setCurrentStep(0);
         }
       } catch (e) {
         console.error("User not found");
@@ -93,7 +94,7 @@ export default function StartAssessment() {
       }
     };
     loadUser();
-  }, [navigate, location.search]);
+  }, [navigate, jobId]);
 
   const updateAssessmentData = (field, value) => {
     setAssessmentData(prev => ({
@@ -215,7 +216,11 @@ export default function StartAssessment() {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <Step1_SelectJob onJobSelect={handleJobSelect} />;
+        return (
+          <div className="px-4 md:px-0">
+            <Step1_SelectJob onJobSelect={handleJobSelect} />
+          </div>
+        );
       case 1:
         return (
           <Step2_EventDetails
@@ -374,11 +379,20 @@ export default function StartAssessment() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             {/* Progress Header */}
             <div className="px-6 py-4 border-b border-gray-100">
-              <AssessmentStepper steps={getVisibleSteps()} currentStep={currentStep} />
+              <AssessmentStepper 
+                steps={getVisibleSteps()} 
+                currentStep={currentStep}
+                onStepClick={(stepIndex) => {
+                  // Allow navigation to completed steps only
+                  if (stepIndex <= currentStep) {
+                    setCurrentStep(stepIndex);
+                  }
+                }}
+              />
             </div>
 
             {/* Content */}
-            <div className="p-6 md:p-8">
+            <div className="p-4 md:p-6 lg:p-8">
               <div className="content-enter">
                 {renderStep()}
               </div>
