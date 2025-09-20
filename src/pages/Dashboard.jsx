@@ -34,8 +34,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { JobTrendChart, PerformanceMetricsChart } from "@/components/analytics/AdvancedCharts";
-import EnhancedCalendar from "@/components/ui/enhanced-calendar";
+import { Calendar } from "@/components/ui/calendar";
 import OfflineSync from "@/components/offline/OfflineSync";
 import BookAppointmentDialog from "../components/jobs/BookAppointmentDialog";
 import DeclineJobDialog from "../components/jobs/DeclineJobDialog";
@@ -224,10 +223,139 @@ export default function Dashboard() {
   const [performanceData, setPerformanceData] = useState([]);
   const [jobToBook, setJobToBook] = useState(null);
   const [jobToDecline, setJobToDecline] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     loadDashboardData();
   }, []);
+
+  // Get appointments for a specific date
+  const getAppointmentsForDate = (date) => {
+    return userJobs.filter(job => {
+      if (!job.appointment_date) return false;
+      const appointmentDate = new Date(job.appointment_date);
+      return appointmentDate.toDateString() === date.toDateString();
+    });
+  };
+
+  // Custom calendar component
+  const DashboardCalendar = () => {
+    const appointmentsForSelectedDate = getAppointmentsForDate(selectedDate);
+    
+    return (
+      <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-slate-600" />
+            Schedule Calendar
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            className="rounded-lg border-0 w-full"
+            classNames={{
+              months: "flex w-full flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+              month: "space-y-4 w-full flex flex-col",
+              caption: "flex justify-center pt-1 relative items-center",
+              caption_label: "text-sm font-medium",
+              nav: "space-x-1 flex items-center",
+              nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+              nav_button_previous: "absolute left-1",
+              nav_button_next: "absolute right-1",
+              table: "w-full border-collapse space-y-1",
+              head_row: "flex w-full",
+              head_cell: "text-slate-500 rounded-md w-full font-normal text-[0.8rem] flex-1 text-center",
+              row: "flex w-full mt-2",
+              cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 flex-1",
+              day: "h-9 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-slate-100 rounded-md transition-colors",
+              day_selected: "bg-slate-800 text-white hover:bg-slate-700",
+              day_today: "bg-slate-100 text-slate-900 font-semibold",
+              day_outside: "text-slate-400 opacity-50",
+              day_disabled: "text-slate-400 opacity-50",
+              day_hidden: "invisible",
+            }}
+            components={{
+              DayContent: ({ date }) => {
+                const dayAppointments = getAppointmentsForDate(date);
+                return (
+                  <div className="relative w-full h-full flex flex-col items-center justify-center">
+                    <span>{date.getDate()}</span>
+                    {dayAppointments.length > 0 && (
+                      <div className="absolute bottom-0 flex gap-0.5">
+                        {dayAppointments.slice(0, 3).map((apt, index) => (
+                          <div
+                            key={index}
+                            className={`w-1 h-1 rounded-full ${
+                              apt.priority === 'urgent' ? 'bg-red-500' :
+                              apt.priority === 'high' ? 'bg-orange-500' :
+                              apt.priority === 'medium' ? 'bg-yellow-500' :
+                              'bg-blue-500'
+                            }`}
+                          />
+                        ))}
+                        {dayAppointments.length > 3 && (
+                          <div className="w-1 h-1 rounded-full bg-slate-400" />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+            }}
+          />
+          
+          {/* Selected Date Appointments */}
+          {appointmentsForSelectedDate.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="font-semibold text-slate-800">
+                {format(selectedDate, 'EEEE, MMMM d')}
+              </h4>
+              <div className="space-y-2">
+                {appointmentsForSelectedDate.map(job => (
+                  <div key={job.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-slate-800">{job.claim_number}</span>
+                      <span className="text-xs text-slate-500">
+                        {format(new Date(job.appointment_date), 'h:mm a')}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-600">{job.customer_name}</p>
+                    <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
+                      <MapPin className="w-3 h-3" />
+                      <span className="truncate">{job.property_address}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Legend */}
+          <div className="flex flex-wrap gap-3 text-xs pt-2 border-t border-slate-200">
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-red-500 rounded-full" />
+              <span>Urgent</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-orange-500 rounded-full" />
+              <span>High</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+              <span>Medium</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-blue-500 rounded-full" />
+              <span>Low</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -519,12 +647,7 @@ export default function Dashboard() {
         
         {/* Left Column - Calendar */}
         <div className="xl:col-span-2 space-y-6">
-          <EnhancedCalendar 
-            appointments={userJobs.filter(job => job.appointment_date)}
-            onDateSelect={(date) => console.log('Date selected:', date)}
-            onAppointmentClick={(apt) => console.log('Appointment clicked:', apt)}
-            className="w-full"
-          />
+          <DashboardCalendar />
         </div>
         
         {/* Right Column - Task Lists */}
