@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { integrations as mockIntegrations } from './mockApi.js';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -86,12 +87,3 @@ const realInvokeLLM = async ({ prompt, response_json_schema, add_context_from_in
     throw error;
   }
 };
-
-export const Core = integrations.Core;
-export const InvokeLLM = Core.InvokeLLM;
-export const SendEmail = integrations.Core.SendEmail;
-export const UploadFile = integrations.Core.UploadFile;
-export const GenerateImage = integrations.Core.GenerateImage;
-export const ExtractDataFromUploadedFile = integrations.Core.ExtractDataFromUploadedFile;
-export const CreateFileSignedUrl = integrations.Core.CreateFileSignedUrl;
-export const UploadPrivateFile = integrations.Core.UploadPrivateFile;
