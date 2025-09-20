@@ -91,17 +91,17 @@ export default function AssessmentDetailsPage() {
         }
         
         // Safely load PDS document - only if ID looks valid
-        if (assessmentData.pds_document_id) {
-          if (isValidId(assessmentData.pds_document_id)) {
+        if (assessmentData.event_details?.pds_document_id) {
+          if (isValidId(assessmentData.event_details.pds_document_id)) {
             try {
-              const pdsData = await PdsDocument.get(assessmentData.pds_document_id);
+              const pdsData = await PdsDocument.get(assessmentData.event_details.pds_document_id);
               setPdsDocument(pdsData);
             } catch (e) {
-              console.warn(`PDS document with id ${assessmentData.pds_document_id} not found. Document details will be unavailable.`, e);
+              console.warn(`PDS document with id ${assessmentData.event_details.pds_document_id} not found. Document details will be unavailable.`, e);
               setPdsDocument(null);
             }
           } else {
-            console.warn(`Invalid PDS document ID format: ${assessmentData.pds_document_id}. Skipping fetch.`);
+            console.warn(`Invalid PDS document ID format: ${assessmentData.event_details.pds_document_id}. Skipping fetch.`);
             setPdsDocument(null);
           }
         }

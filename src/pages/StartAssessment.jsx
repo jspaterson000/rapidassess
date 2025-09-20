@@ -71,10 +71,10 @@ export default function StartAssessment() {
             setAssessmentData(prev => ({
               ...prev,
               job_id: jobData.id,
-              pds_document_id: jobData.pds_document_id,
               event_details: { 
                 ...prev.event_details, 
-                event_type: jobData.event_type 
+                event_type: jobData.event_type,
+                pds_document_id: jobData.pds_document_id
               }
             }));
             // Ensure we're on step 1 (Event Details)

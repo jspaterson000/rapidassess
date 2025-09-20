@@ -134,14 +134,14 @@ function UserManagement({ companies }) {
       <CardHeader>
         <CardTitle>All Users ({filteredUsers.length})</CardTitle>
         <div className="relative pt-2">
-            <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-            <Input
-              placeholder="Search users by name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-50 border-slate-200/90"
-            />
-          </div>
+          <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+          <Input
+            placeholder="Search users by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-slate-50 border-slate-200/90"
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">

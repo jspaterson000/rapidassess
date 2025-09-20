@@ -20,7 +20,10 @@ export default function Step1_SelectJob({ onJobSelect }) {
           Assessment.list()
         ]);
         const assessedJobIds = new Set(allAssessments.map(a => a.job_id));
-        const availableJobs = allJobs.filter(job => !assessedJobIds.has(job.id));
+        const availableJobs = allJobs.filter(job => 
+          !assessedJobIds.has(job.id) && 
+          !['completed', 'archived'].includes(job.status)
+        );
         setJobs(availableJobs);
         setFilteredJobs(availableJobs);
       } catch (error) {

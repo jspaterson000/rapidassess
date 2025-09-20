@@ -127,7 +127,7 @@ Important:
     } finally {
       setLoading(false);
     }
-  }, [job]);
+  }, [job, calculateDistance]);
 
   useEffect(() => {
     if (open) {

@@ -95,6 +95,9 @@ const createCrudOperations = (dataArray, name) => ({
         if (typeof value === 'object' && value.$in) {
           return value.$in.includes(item[key]);
         }
+        if (typeof value === 'object' && value.$nin) {
+          return !value.$nin.includes(item[key]);
+        }
         if (typeof value === 'object' && value.$gte && value.$lt) {
           const itemDate = new Date(item[key]);
           return itemDate >= new Date(value.$gte) && itemDate < new Date(value.$lt);

@@ -43,7 +43,7 @@ export default function AssessorPerformanceModal({ open, onClose, assessor }) {
     } finally {
       setLoading(false);
     }
-  }, [assessor]);
+  }, [assessor.id]);
 
   useEffect(() => {
     if (open && assessor) {

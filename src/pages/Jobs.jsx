@@ -202,51 +202,51 @@ export default function JobsPage() {
 
   const renderPrimaryAction = (job) => {
     if (job.status === 'awaiting_insurer') {
-        return (
-            <Button size="sm" disabled className="w-full bg-purple-100 text-purple-700 py-2 text-sm font-medium">
-                Referred for Policy Review
-            </Button>
-        );
+      return (
+        <Button size="sm" disabled className="w-full bg-purple-100 text-purple-700 py-2 text-sm font-medium">
+          Referred for Policy Review
+        </Button>
+      );
     }
     if (job.status === 'pending_completion') {
-        return (
-            <Button size="sm" disabled className="w-full bg-orange-100 text-orange-700 py-2 text-sm font-medium">
-                Pending Completion
-            </Button>
-        );
+      return (
+        <Button size="sm" disabled className="w-full bg-orange-100 text-orange-700 py-2 text-sm font-medium">
+          Pending Completion
+        </Button>
+      );
     }
     if (job.status === 'assessed' || job.status === 'completed' || job.status === 'on_hold') {
-        return (
-             <Link to={createPageUrl(`JobDetails?id=${job.id}`)} className="w-full">
-                <Button variant="outline" size="sm" className="interactive-button w-full text-slate-600 hover:text-slate-800 hover:bg-slate-50 py-2 text-sm font-medium">
-                    <FileSearch className="w-4 h-4 mr-2" />
-                    View Details
-                </Button>
-            </Link>
-        );
+      return (
+        <Link to={createPageUrl(`JobDetails?id=${job.id}`)} className="w-full">
+          <Button variant="outline" size="sm" className="interactive-button w-full text-slate-600 hover:text-slate-800 hover:bg-slate-50 py-2 text-sm font-medium">
+            <FileSearch className="w-4 h-4 mr-2" />
+            View Details
+          </Button>
+        </Link>
+      );
     }
     if (job.appointment_date) {
-        return (
-            <Button
-                size="sm"
-                onClick={() => navigate(createPageUrl(`StartAssessment?jobId=${job.id}`))}
-                className="interactive-button w-full bg-slate-700 hover:bg-slate-800 text-white py-2 text-sm font-medium"
-            >
-                <ClipboardCheck className="w-4 h-4 mr-2" />
-                Start Assessment
-            </Button>
-        );
+      return (
+        <Button
+          size="sm"
+          onClick={() => navigate(createPageUrl(`StartAssessment?jobId=${job.id}`))}
+          className="interactive-button w-full bg-slate-700 hover:bg-slate-800 text-white py-2 text-sm font-medium"
+        >
+          <ClipboardCheck className="w-4 h-4 mr-2" />
+          Start Assessment
+        </Button>
+      );
     }
     // Default for awaiting_booking, new_job
     return (
-        <Button
-            size="sm"
-            onClick={() => setJobToBook(job)}
-            className="interactive-button w-full bg-slate-700 hover:bg-slate-800 text-white py-2 text-sm font-medium"
-        >
-            <Calendar className="w-4 h-4 mr-2" />
-            Book Customer
-        </Button>
+      <Button
+        size="sm"
+        onClick={() => setJobToBook(job)}
+        className="interactive-button w-full bg-slate-700 hover:bg-slate-800 text-white py-2 text-sm font-medium"
+      >
+        <Calendar className="w-4 h-4 mr-2" />
+        Book Customer
+      </Button>
     );
   };
 

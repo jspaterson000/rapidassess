@@ -144,7 +144,7 @@ export default function Step2_EventDetails({ eventDetails, onUpdate, onNext, onB
                 ) : (
                   <Select
                     value={eventDetails.pds_document_id || ''}
-                    onValueChange={(value) => onUpdate({ ...eventDetails, pds_document_id: value })}
+                    onValueChange={(value) => handleChange('pds_document_id', value)}
                   >
                     <SelectTrigger className="h-14 bg-slate-50 border-slate-200 hover:border-slate-300 transition-colors text-base">
                       <SelectValue placeholder="Choose the relevant PDS document..." />

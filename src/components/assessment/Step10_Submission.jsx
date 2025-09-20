@@ -36,7 +36,8 @@ export default function Step10_Submission({
     const enhancedAssessmentData = {
       ...assessmentData,
       total_estimate: totalEstimate,
-      scope_of_works: assessmentData.scope_of_works || []
+      scope_of_works: assessmentData.scope_of_works || [],
+      status: policyReviewResult?.recommendation === 'additional_info_needed' ? 'pending_review' : 'completed'
     };
     
     await onSubmit(enhancedAssessmentData);

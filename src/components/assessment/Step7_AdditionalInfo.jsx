@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { UploadFile } from "@/api/integrations";
 import { Upload, FileText, ImageIcon, X, CheckCircle, Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function Step7_AdditionalInfo({ additionalInfoRequests, onUpdate, onComplete, onBack }) {
   const [additionalNotes, setAdditionalNotes] = useState('');

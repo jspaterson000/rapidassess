@@ -50,7 +50,7 @@ export default function JobComments({ job }) {
         } finally {
             setLoading(false);
         }
-    }, [job]);
+    }, [job.id]);
 
     useEffect(() => {
         fetchData();

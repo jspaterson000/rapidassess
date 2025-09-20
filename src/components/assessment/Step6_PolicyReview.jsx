@@ -3,16 +3,18 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { InvokeLLM, CreateFileSignedUrl } from "@/api/integrations";
 import { PdsDocument } from '@/api/entities';
-import { Loader2, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle, AlertTriangle, XCircle, ArrowLeft, ArrowRight, Cpu } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export default function Step6_PolicyReview({ assessmentData, onPolicyReview, onBack }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [error, setError] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Added to support the 'disabled' prop on buttons as per outline
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handlePolicyCheck = async () => {
-    if (!assessmentData.pds_document_id) {
+    if (!assessmentData.event_details?.pds_document_id) {
       setError("Please select a PDS document in the 'Event Details' step before proceeding.");
       return;
     }
@@ -20,10 +22,10 @@ export default function Step6_PolicyReview({ assessmentData, onPolicyReview, onB
     setIsAnalyzing(true);
     
     try {
-      console.log("Starting PDS analysis for document ID:", assessmentData.pds_document_id);
+      console.log("Starting PDS analysis for document ID:", assessmentData.event_details.pds_document_id);
       
       // First, get the PDS document
-      const pdsDoc = await PdsDocument.get(assessmentData.pds_document_id);
+      const pdsDoc = await PdsDocument.get(assessmentData.event_details.pds_document_id);
       console.log("PDS document loaded:", pdsDoc);
       
       if (!pdsDoc.file_uri) {

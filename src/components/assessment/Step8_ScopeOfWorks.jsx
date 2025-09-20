@@ -126,7 +126,7 @@ function ScopeItemCard({ item, index, updateItem, removeItem }) {
   );
 }
 
-export default function Step8_ScopeOfWorks({ scopeOfWorks, onUpdate, onComplete, onBack }) {
+export default function Step8_ScopeOfWorks({ scopeOfWorks = [], onUpdate, onComplete, onBack }) {
   const [scopeItems, setScopeItems] = useState(scopeOfWorks || []);
 
   const addItem = () => {

@@ -201,50 +201,50 @@ export default function JobDetailsPage() {
         if (!job) return null;
 
         if (job.status === 'awaiting_insurer') {
-            return (
-                <Button size="sm" disabled className="bg-purple-100 text-purple-700">
-                    Referred for Policy Review
-                </Button>
-            );
+          return (
+            <Button size="sm" disabled className="bg-purple-100 text-purple-700">
+              Referred for Policy Review
+            </Button>
+          );
         }
         if (job.status === 'pending_completion') {
-            return (
-                <Button size="sm" disabled className="bg-orange-100 text-orange-700">
-                    Pending Completion
-                </Button>
-            );
+          return (
+            <Button size="sm" disabled className="bg-orange-100 text-orange-700">
+              Pending Completion
+            </Button>
+          );
         }
         if (job.status === 'assessed' || job.status === 'completed' || job.status === 'on_hold') {
-            return (
-                <Button variant="outline" size="sm" className="text-slate-600 hover:text-slate-800 hover:bg-slate-50">
-                    <FileSearch className="w-4 h-4 mr-2" />
-                    View Details
-                </Button>
-            );
+          return (
+            <Button variant="outline" size="sm" className="text-slate-600 hover:text-slate-800 hover:bg-slate-50">
+              <FileSearch className="w-4 h-4 mr-2" />
+              View Details
+            </Button>
+          );
         }
         if (job.appointment_date && isAssignedToMe) {
-            return (
-                <Button
-                    size="sm"
-                    onClick={() => navigate(createPageUrl(`StartAssessment?jobId=${job.id}`))}
-                    className="bg-slate-700 hover:bg-slate-800 text-white"
-                >
-                    <ClipboardCheck className="w-4 h-4 mr-2" />
-                    Start Assessment
-                </Button>
-            );
+          return (
+            <Button
+              size="sm"
+              onClick={() => navigate(createPageUrl(`StartAssessment?jobId=${job.id}`))}
+              className="bg-slate-700 hover:bg-slate-800 text-white"
+            >
+              <ClipboardCheck className="w-4 h-4 mr-2" />
+              Start Assessment
+            </Button>
+          );
         }
         if (isAssignedToMe) {
-            return (
-                <Button
-                    size="sm"
-                    onClick={() => setJobToBook(job)}
-                    className="bg-slate-700 hover:bg-slate-800 text-white"
-                >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Book Customer
-                </Button>
-            );
+          return (
+            <Button
+              size="sm"
+              onClick={() => setJobToBook(job)}
+              className="bg-slate-700 hover:bg-slate-800 text-white"
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Book Customer
+            </Button>
+          );
         }
         return null;
     };
@@ -533,6 +533,7 @@ export default function JobDetailsPage() {
                     onClose={() => setShowEditDialog(false)}
                     onSubmit={handleEditJob}
                     job={job}
+                    isSubmitting={isEditing}
                 />
             )}
 

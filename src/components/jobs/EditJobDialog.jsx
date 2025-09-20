@@ -76,15 +76,12 @@ export default function EditJobDialog({ open, onClose, onSubmit, job }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     
     try {
       await onSubmit(formData);
       onClose();
     } catch (error) {
       console.error("Error submitting form:", error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

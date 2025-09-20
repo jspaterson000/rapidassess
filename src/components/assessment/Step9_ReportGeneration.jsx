@@ -155,7 +155,7 @@ Format as a professional report suitable for insurance purposes.
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span className="text-neumorphic">Damage Photos ({data.photos?.length || 0})</span>
+                <span className="text-neumorphic">Damage Photos ({assessmentData.photos?.length || 0})</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>

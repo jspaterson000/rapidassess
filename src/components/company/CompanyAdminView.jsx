@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Company } from '@/api/entities';
 import { User } from '@/api/entities';
@@ -295,14 +294,6 @@ export default function CompanyAdminView({ user }) {
                                             Assessor
                                         </Label>
                                     </div>
-                                </div>
-                                <div className="lg:col-span-1 text-sm text-slate-500">
-                                    {u.is_assessor && (
-                                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
-                                            <Shield className="w-3 h-3" />
-                                            Can assess
-                                        </span>
-                                    )}
                                 </div>
                             </div>
                         ))}

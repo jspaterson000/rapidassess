@@ -32,6 +32,7 @@ function NotificationBell() {
             }
         } catch (error) {
             // It's okay if it fails, e.g., for non-logged-in users.
+            console.warn('Failed to fetch notifications:', error);
         } finally {
             setLoading(false);
         }

@@ -75,6 +75,7 @@ export const mockJobs = [
     assigned_to: 'user-3',
     time_assigned: '2024-01-16T09:00:00Z',
     appointment_date: null,
+    pds_document_id: 'pds-1',
     created_date: '2024-01-16T08:00:00Z',
     updated_date: '2024-01-16T09:00:00Z'
   },
@@ -96,6 +97,7 @@ export const mockJobs = [
     assigned_to: 'user-2',
     time_assigned: '2024-01-15T10:30:00Z',
     appointment_date: '2024-01-18T14:00:00Z',
+    pds_document_id: 'pds-1',
     created_date: '2024-01-15T08:30:00Z',
     updated_date: '2024-01-15T10:30:00Z'
   },
@@ -117,6 +119,7 @@ export const mockJobs = [
     assigned_to: null,
     time_assigned: null,
     appointment_date: null,
+    pds_document_id: 'pds-1',
     created_date: '2024-01-16T07:00:00Z',
     updated_date: '2024-01-16T07:00:00Z'
   }
