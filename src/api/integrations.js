@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { supabase } from '@/lib/supabase';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -90,61 +91,53 @@ const realInvokeLLM = async ({ prompt, response_json_schema, add_context_from_in
   }
 };
 
-// Mock implementations for other functions
-const mockUploadFile = async ({ file }) => {
+// Real Supabase implementations
+const realUploadFile = async ({ file }) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
   const mockUrl = `https://images.pexels.com/photos/${Math.floor(Math.random() * 1000000)}/pexels-photo.jpeg`;
   return { file_url: mockUrl };
 };
 
-const mockUploadPrivateFile = async ({ file }) => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  const fileId = Math.random().toString(36).substr(2, 9);
-  const fileUri = `private://files/${fileId}-${file.name}`;
-  
-  // Store only file metadata in localStorage to avoid quota issues
-  localStorage.setItem(`file_metadata_${fileId}`, JSON.stringify({
-    name: file.name,
-    type: file.type,
-    size: file.size,
-    uploadDate: new Date().toISOString()
-  }));
-  
-  return { file_uri: fileUri };
+const realUploadPrivateFile = async ({ file }) => {
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+    const filePath = `pds-documents/${fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from('documents')
+      .upload(filePath, file);
+
+    if (error) {
+      throw error;
+    }
+
+    return { file_uri: data.path };
+  } catch (error) {
+    console.error('Error uploading file to Supabase:', error);
+    throw new Error('Failed to upload file to storage');
+  }
 };
 
-const mockCreateFileSignedUrl = async ({ file_uri }) => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Return a generic mock signed URL without retrieving file content
-  return { signed_url: `https://example.com/signed/${Math.random().toString(36).substr(2, 9)}` };
+const realCreateFileSignedUrl = async ({ file_uri }) => {
+  try {
+    const { data, error } = await supabase.storage
+      .from('documents')
+      .createSignedUrl(file_uri, 3600); // 1 hour expiry
+
+    if (error) {
+      throw error;
+    }
+
+    return { signed_url: data.signedUrl };
+  } catch (error) {
+    console.error('Error creating signed URL:', error);
+    throw new Error('Failed to create signed URL');
+  }
 };
 
 // Export all required functions
-export const InvokeLLM = hasOpenAIKey ? realInvokeLLM : async ({ prompt, response_json_schema }) => {
-  // Fallback mock implementation when no API key
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  if (prompt.includes('distance') && prompt.includes('travel time')) {
-    return {
-      distance_km: Math.random() * 40 + 10,
-      travel_time_minutes: Math.random() * 60 + 20
-    };
-  }
-  
-  if (prompt.includes('policy') || prompt.includes('PDS')) {
-    return {
-      recommendation: 'additional_info_needed',
-      reasoning: 'Mock policy analysis - please configure OpenAI API key for real analysis.',
-      confidence_level: 'low',
-      pds_citations: [],
-      additional_requirements: ['Configure OpenAI API key for real analysis']
-    };
-  }
-  
-  return { message: 'Mock AI response - configure OpenAI API key for real responses' };
-};
-
-export const UploadFile = mockUploadFile;
-export const UploadPrivateFile = mockUploadPrivateFile;
-export const CreateFileSignedUrl = mockCreateFileSignedUrl;
+export const InvokeLLM = realInvokeLLM;
+export const UploadFile = realUploadFile;
+export const UploadPrivateFile = realUploadPrivateFile;
+export const CreateFileSignedUrl = realCreateFileSignedUrl;
