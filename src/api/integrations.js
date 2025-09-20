@@ -87,10 +87,6 @@ const realInvokeLLM = async ({ prompt, response_json_schema, add_context_from_in
   }
 };
 
-  UploadFile: integrations.Core.UploadFile,
-  UploadPrivateFile: integrations.Core.UploadPrivateFile,
-  CreateFileSignedUrl: integrations.Core.CreateFileSignedUrl
-  InvokeLLM: shouldUseRealLLM ? realInvokeLLM : integrations.Core.InvokeLLM,
 export const Core = integrations.Core;
 export const InvokeLLM = Core.InvokeLLM;
 export const SendEmail = integrations.Core.SendEmail;
