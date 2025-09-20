@@ -1,11 +1,13 @@
 import OpenAI from 'openai';
-import { integrations as mockIntegrations } from './mockApi.js';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
   dangerouslyAllowBrowser: true // Required for client-side usage
 });
+
+// Check if OpenAI API key is available
+const hasOpenAIKey = !!import.meta.env.VITE_OPENAI_API_KEY;
 
 // Real LLM implementation
 const realInvokeLLM = async ({ prompt, response_json_schema, add_context_from_internet = false }) => {
@@ -86,5 +88,50 @@ const realInvokeLLM = async ({ prompt, response_json_schema, add_context_from_in
     
     throw error;
   }
+};
 
-}
+// Mock implementations for other functions
+const mockUploadFile = async ({ file }) => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  const mockUrl = `https://images.pexels.com/photos/${Math.floor(Math.random() * 1000000)}/pexels-photo.jpeg`;
+  return { file_url: mockUrl };
+};
+
+const mockUploadPrivateFile = async ({ file }) => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return { file_uri: `private://files/${Math.random().toString(36).substr(2, 9)}-${file.name}` };
+};
+
+const mockCreateFileSignedUrl = async ({ file_uri }) => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return { signed_url: `https://example.com/signed/${Math.random().toString(36).substr(2, 9)}` };
+};
+
+// Export all required functions
+export const InvokeLLM = hasOpenAIKey ? realInvokeLLM : async ({ prompt, response_json_schema }) => {
+  // Fallback mock implementation when no API key
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  if (prompt.includes('distance') && prompt.includes('travel time')) {
+    return {
+      distance_km: Math.random() * 40 + 10,
+      travel_time_minutes: Math.random() * 60 + 20
+    };
+  }
+  
+  if (prompt.includes('policy') || prompt.includes('PDS')) {
+    return {
+      recommendation: 'additional_info_needed',
+      reasoning: 'Mock policy analysis - please configure OpenAI API key for real analysis.',
+      confidence_level: 'low',
+      pds_citations: [],
+      additional_requirements: ['Configure OpenAI API key for real analysis']
+    };
+  }
+  
+  return { message: 'Mock AI response - configure OpenAI API key for real responses' };
+};
+
+export const UploadFile = mockUploadFile;
+export const UploadPrivateFile = mockUploadPrivateFile;
+export const CreateFileSignedUrl = mockCreateFileSignedUrl;
