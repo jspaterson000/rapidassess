@@ -628,83 +628,94 @@ export default function Dashboard() {
                     {renderPrimaryDashboardAction(job)}
                   </div>
                 </div>
-                )
+                );
               }) : (
                 <div className="text-center py-10">
                   <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4"/>
-          <div className="lg:col-span-2 space-y-6">            
-            <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl animate-fade-in-up">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <AlertCircle className="w-5 h-5 text-orange-600"/> {/* Changed icon to AlertCircle */}
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl font-semibold text-slate-800">Needs Review</CardTitle>
-                    <p className="text-sm text-slate-500">These assessments need additional information or review.</p>
-                  </div>
+                  <h3 className="font-medium text-slate-700">All caught up!</h3>
+                  <p className="text-slate-500 text-sm">No jobs require immediate attention.</p>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4"> {/* Changed space-y to space-y-4 for consistent spacing */}
-                {pendingReviewAssessments.map(assessment => {
-                  const job = allJobs.find(j => j.id === assessment.job_id);
-                  if (!job) return null;
-                  return (
-                    <div key={assessment.id} className="p-5 bg-slate-50/80 rounded-xl border border-slate-200/90">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h3 className="font-bold text-lg text-slate-800">{job.claim_number}</h3>
-                            <Badge className="bg-orange-50 text-orange-700 border-orange-200 border font-medium text-xs px-2 py-0.5">
-                              Needs Review
-                            </Badge>
-                          </div>
-                          <p className="font-medium text-slate-700 mb-3">{job.customer_name}</p>
+              )}
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl animate-fade-in-up">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <AlertCircle className="w-5 h-5 text-orange-600"/> {/* Changed icon to AlertCircle */}
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-semibold text-slate-800">Needs Review</CardTitle>
+                  <p className="text-sm text-slate-500">These assessments need additional information or review.</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4"> {/* Changed space-y to space-y-4 for consistent spacing */}
+              {pendingReviewAssessments.length > 0 ? pendingReviewAssessments.map(assessment => {
+                const job = allJobs.find(j => j.id === assessment.job_id);
+                if (!job) return null;
+                return (
+                  <div key={assessment.id} className="p-5 bg-slate-50/80 rounded-xl border border-slate-200/90">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2 flex-wrap">
+                          <h3 className="font-bold text-lg text-slate-800">{job.claim_number}</h3>
+                          <Badge className="bg-orange-50 text-orange-700 border-orange-200 border font-medium text-xs px-2 py-0.5">
+                            Needs Review
+                          </Badge>
                         </div>
+                        <p className="font-medium text-slate-700 mb-3">{job.customer_name}</p>
                       </div>
+                    </div>
 
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                          <span className="truncate">{job.property_address}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <Activity className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                          <span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span>
-                          <span className="text-slate-400">•</span>
-                          <Calendar className="w-4 h-4 text-slate-400" />
-                          <span>{new Date(job.date_of_loss).toLocaleDateString()}</span>
-                        </div>
-                        {job.customer_phone && (
-                          <div className="flex items-center gap-2 text-sm text-slate-600">
-                            <Phone className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                            <span>{job.customer_phone}</span>
-                          </div>
-                        )}
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span className="truncate">{job.property_address}</span>
                       </div>
-
-                      <div className="flex items-center justify-between pt-3 border-t border-slate-200/90">
-                        <div className="flex items-center gap-2">
-                          <Link to={createPageUrl(`JobDetails?id=${job.id}`)}>
-                            <Button variant="outline" size="sm" className="text-slate-600 hover:text-slate-800">
-                              <FileText className="w-4 h-4 mr-2" />
-                              Job Details
-                            </Button>
-                          </Link>
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <Activity className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span className="capitalize">{job.event_type?.replace(/_/g, ' ')}</span>
+                        <span className="text-slate-400">•</span>
+                        <Calendar className="w-4 h-4 text-slate-400" />
+                        <span>{new Date(job.date_of_loss).toLocaleDateString()}</span>
+                      </div>
+                      {job.customer_phone && (
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <Phone className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                          <span>{job.customer_phone}</span>
                         </div>
-                        <Link to={createPageUrl(`AssessmentDetails?id=${assessment.id}`)}>
-                          <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-white">
-                            <AlertCircle className="w-4 h-4 mr-2" />
-                            Review Assessment
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-200/90">
+                      <div className="flex items-center gap-2">
+                        <Link to={createPageUrl(`JobDetails?id=${job.id}`)}>
+                          <Button variant="outline" size="sm" className="text-slate-600 hover:text-slate-800">
+                            <FileText className="w-4 h-4 mr-2" />
+                            Job Details
                           </Button>
                         </Link>
                       </div>
+                      <Link to={createPageUrl(`AssessmentDetails?id=${assessment.id}`)}>
+                        <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-white">
+                          <AlertCircle className="w-4 h-4 mr-2" />
+                          Review Assessment
+                        </Button>
+                      </Link>
                     </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
-          )}
+                  </div>
+                );
+              }) : (
+                <div className="text-center py-10">
+                  <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4"/>
+                  <h3 className="font-medium text-slate-700">All assessments reviewed!</h3>
+                  <p className="text-slate-500 text-sm">No assessments need review at this time.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           <Card className="bg-white shadow-sm border-slate-200/60 rounded-2xl animate-fade-in-up animate-stagger-2">
             <CardHeader>
@@ -754,7 +765,7 @@ export default function Dashboard() {
                     {renderPrimaryDashboardAction(job)}
                   </div>
                 </div>
-                )
+                );
               }) : (
                 <div className="text-center py-10">
                   <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4"/>
