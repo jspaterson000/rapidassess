@@ -273,7 +273,7 @@ function AssessmentCompletionChart({ data }) {
   );
 }
 
-export default function CompanyAnalytics({ user, companyFilter }) {
+function CompanyAnalytics({ user, companyFilter }) {
   const [jobs, setJobs] = useState([]);
   const [assessments, setAssessments] = useState([]);
   const [users, setUsers] = useState([]);
@@ -414,3 +414,5 @@ export default function CompanyAnalytics({ user, companyFilter }) {
     </div>
   );
 }
+
+export default CompanyAnalytics;

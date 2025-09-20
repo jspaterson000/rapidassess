@@ -25,7 +25,7 @@ export default function JobEditForm({ job, onSave, onCancel }) {
             setUsers(usersData.filter(u => ['user', 'manager'].includes(u.user_role)));
         };
         loadAuxData();
-    }, [PdsDocument, User]); // Added PdsDocument and User to dependencies to satisfy exhaustive-deps lint rule
+    }, []); // Remove unnecessary dependencies
 
     const handleChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));

@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { InvokeLLM, CreateFileSignedUrl } from "@/api/integrations";
 import { PdsDocument } from '@/api/entities';
-import { Loader2, CheckCircle, AlertTriangle, XCircle, ArrowLeft, ArrowRight, Cpu } from 'lucide-react';
+import { Loader2, CheckCircle, AlertTriangle, XCircle, ArrowLeft, ArrowRight, Cpu, Shield, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -11,7 +10,6 @@ export default function Step6_PolicyReview({ assessmentData, onPolicyReview, onB
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [error, setError] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handlePolicyCheck = async () => {
     if (!assessmentData.event_details?.pds_document_id) {
@@ -135,11 +133,11 @@ Based on your analysis of the PDS and the claim details, provide your response i
   const getRecommendationText = (recommendation) => {
     switch (recommendation) {
       case 'proceed':
-        return 'Proceed (within DOA, covered by policy)';
+        return 'Proceed with Claim';
       case 'additional_info_needed':
         return 'Additional Information Required';
       case 'refer_to_insurer':
-        return 'Refer to Insurer (possible exclusion or decline)';
+        return 'Refer to Insurer';
       default:
         return '';
     }
@@ -148,130 +146,183 @@ Based on your analysis of the PDS and the claim details, provide your response i
   const getRecommendationColor = (recommendation) => {
     switch (recommendation) {
       case 'proceed':
-        return 'text-green-600';
+        return 'bg-green-50 text-green-800 border-green-200';
       case 'additional_info_needed':
-        return 'text-yellow-600';
+        return 'bg-yellow-50 text-yellow-800 border-yellow-200';
       case 'refer_to_insurer':
-        return 'text-red-600';
+        return 'bg-red-50 text-red-800 border-red-200';
       default:
-        return 'text-neumorphic-dark';
+        return 'bg-slate-50 text-slate-800 border-slate-200';
     }
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-xl font-bold text-neumorphic-dark mb-2">Policy Review & Analysis</h2>
-        <p className="text-neumorphic">AI analysis against Product Disclosure Statement (PDS) requirements.</p>
+    <div className="space-y-6 md:space-y-8 max-w-4xl mx-auto">
+      {/* Mobile-Optimized Header */}
+      <div className="text-center space-y-4 px-4 md:px-0">
+        <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full text-sm md:text-base font-medium">
+          <Cpu className="w-4 h-4 md:w-5 md:h-5" />
+          <span className="hidden sm:inline">Step 6 of 10 • </span>AI Policy Review
+        </div>
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Policy Analysis</h1>
+        <p className="text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
+          Our AI will analyze your assessment against the policy terms to provide recommendations
+        </p>
       </div>
 
-      {error && (
-        <div className="p-4 bg-red-50 text-red-700 rounded-lg flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="font-medium">Analysis Error</p>
-            <p className="text-sm mt-1">{error}</p>
-            <p className="text-xs mt-2 text-red-600">Check the console for more details, or try selecting a different PDS document.</p>
-          </div>
-        </div>
-      )}
+      <div className="space-y-6 px-4 md:px-0">
+        {error && (
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-red-800 mb-1">Analysis Error</h4>
+                  <p className="text-sm text-red-700">{error}</p>
+                  <p className="text-xs text-red-600 mt-2">Check the console for more details, or try selecting a different PDS document.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-      {!analysisResult ? (
-        <div className="text-center py-12">
-          <div className="w-24 h-24 neumorphic-button rounded-full flex items-center justify-center mx-auto mb-6">
-            {isAnalyzing ? (
-              <Loader2 className="w-12 h-12 text-slate-700 animate-spin" />
-            ) : (
-              <CheckCircle className="w-12 h-12 text-slate-700" />
+        {!analysisResult ? (
+          <Card className="border-slate-200 shadow-sm">
+            <CardContent className="text-center py-12 md:py-16">
+              <div className="w-20 h-20 md:w-24 md:h-24 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                {isAnalyzing ? (
+                  <Loader2 className="w-10 h-10 md:w-12 md:h-12 text-indigo-600 animate-spin" />
+                ) : (
+                  <Shield className="w-10 h-10 md:w-12 md:h-12 text-indigo-600" />
+                )}
+              </div>
+              
+              {isAnalyzing ? (
+                <div className="space-y-4">
+                  <h3 className="text-lg md:text-xl font-semibold text-slate-800">Analyzing Claim Against Policy...</h3>
+                  <p className="text-base md:text-lg text-slate-600 max-w-md mx-auto">
+                    Our AI is reviewing the selected PDS document and comparing it with your assessment details
+                  </p>
+                  <div className="flex items-center justify-center gap-2 text-sm text-indigo-600">
+                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <h3 className="text-lg md:text-xl font-semibold text-slate-800">Ready for Policy Analysis</h3>
+                  <p className="text-base md:text-lg text-slate-600 max-w-md mx-auto">
+                    Click below to analyze this assessment against the selected PDS document
+                  </p>
+                  <Button 
+                    onClick={handlePolicyCheck} 
+                    className="h-12 md:h-14 px-8 text-base font-medium bg-indigo-600 hover:bg-indigo-700 text-white min-w-[44px]"
+                    disabled={isAnalyzing}
+                  >
+                    <Shield className="w-5 h-5 mr-2" />
+                    Start Policy Analysis
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {/* Recommendation Result */}
+            <Card className={`border-2 ${getRecommendationColor(analysisResult.recommendation)}`}>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4 mb-6">
+                  {getRecommendationIcon(analysisResult.recommendation)}
+                  <div>
+                    <h3 className="text-xl md:text-2xl font-semibold text-slate-800">
+                      {getRecommendationText(analysisResult.recommendation)}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="outline" className="text-sm">
+                        Confidence: {analysisResult.confidence_level}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-white rounded-lg border border-slate-200">
+                  <h4 className="font-medium text-slate-800 mb-3 flex items-center gap-2">
+                    <Cpu className="w-4 h-4" />
+                    AI Analysis Summary
+                  </h4>
+                  <p className="text-slate-700 leading-relaxed">{analysisResult.reasoning}</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* PDS Citations */}
+            {analysisResult.pds_citations && analysisResult.pds_citations.length > 0 && (
+              <Card className="border-slate-200 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    Relevant Policy Clauses
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {analysisResult.pds_citations.map((citation, index) => (
+                    <div key={index} className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <h5 className="font-semibold text-blue-900 mb-2">{citation.clause}</h5>
+                      <p className="text-blue-800 text-sm mb-2">{citation.text}</p>
+                      <p className="text-xs text-blue-600 italic">{citation.relevance}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Additional Requirements */}
+            {analysisResult.additional_requirements && analysisResult.additional_requirements.length > 0 && (
+              <Card className="border-amber-200 bg-amber-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-amber-800">
+                    <AlertTriangle className="w-5 h-5" />
+                    Additional Information Required
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {analysisResult.additional_requirements.map((req, index) => (
+                      <li key={index} className="flex items-start gap-3 text-amber-800">
+                        <div className="w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-xs font-bold">{index + 1}</span>
+                        </div>
+                        <span className="text-sm md:text-base">{req}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
             )}
           </div>
-          
-          {isAnalyzing ? (
-            <div>
-              <h3 className="text-lg font-semibold text-neumorphic-dark mb-2">Analyzing Claim Against Policy...</h3>
-              <p className="text-neumorphic">This may take a few moments while we review the selected PDS</p>
-            </div>
-          ) : (
-            <div>
-              <h3 className="text-lg font-semibold text-neumorphic-dark mb-2">Ready for Policy Check</h3>
-              <p className="text-neumorphic mb-6">Click below to analyze this assessment against the selected PDS</p>
-              <Button 
-                onClick={handlePolicyCheck} 
-                className="bg-slate-700 hover:bg-slate-800 text-white shadow-sm"
-                disabled={isAnalyzing}
-              >
-                Check Against Policy
-              </Button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Recommendation Result */}
-          <div className="p-6 neumorphic-inset rounded-lg">
-            <div className="flex items-center gap-4 mb-4">
-              {getRecommendationIcon(analysisResult.recommendation)}
-              <div>
-                <h3 className={`text-xl font-semibold ${getRecommendationColor(analysisResult.recommendation)}`}>
-                  {getRecommendationText(analysisResult.recommendation)}
-                </h3>
-                <p className="text-sm text-neumorphic">Confidence: {analysisResult.confidence_level}</p>
-              </div>
-            </div>
-            
-            <div className="p-4 neumorphic rounded-lg">
-              <h4 className="font-medium text-neumorphic-dark mb-2">AI Reasoning:</h4>
-              <p className="text-neumorphic text-sm leading-relaxed">{analysisResult.reasoning}</p>
-            </div>
-          </div>
+        )}
+      </div>
 
-          {/* PDS Citations */}
-          {analysisResult.pds_citations && analysisResult.pds_citations.length > 0 && (
-            <div className="p-4 neumorphic-inset rounded-lg">
-              <h3 className="font-semibold text-neumorphic-dark mb-3">Relevant PDS Clauses</h3>
-              <div className="space-y-3">
-                {analysisResult.pds_citations.map((citation, index) => (
-                  <div key={index} className="p-3 neumorphic rounded-md">
-                    <p className="font-medium text-neumorphic-dark text-sm">{citation.clause}</p>
-                    <p className="text-neumorphic text-sm mt-1">{citation.text}</p>
-                    <p className="text-xs text-blue-600 mt-2">{citation.relevance}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Additional Requirements */}
-          {analysisResult.additional_requirements && analysisResult.additional_requirements.length > 0 && (
-            <div className="p-4 neumorphic-inset rounded-lg">
-              <h3 className="font-semibold text-neumorphic-dark mb-3">Additional Information Required</h3>
-              <ul className="space-y-2">
-                {analysisResult.additional_requirements.map((req, index) => (
-                  <li key={index} className="flex items-start gap-2 text-neumorphic text-sm">
-                    <span className="text-yellow-600 font-bold">•</span>
-                    {req}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-
+      {/* Mobile-Optimized Actions */}
       {analysisResult && (
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 mt-8">
-          <Button onClick={onBack} className="bg-white hover:bg-gray-50 text-slate-700 border border-gray-200 shadow-sm" disabled={isSubmitting}>
-            Back
-          </Button>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button className="bg-white hover:bg-gray-50 text-slate-700 border border-gray-200 shadow-sm">
-              Save & Return Later
+        <div className="px-4 md:px-0">
+          <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-200">
+            <Button 
+              onClick={onBack} 
+              variant="outline" 
+              className="h-12 md:h-14 text-base font-medium min-w-[44px] flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="hidden sm:inline">Previous Step</span>
+              <span className="sm:hidden">Back</span>
             </Button>
             <Button 
               onClick={handleAcceptAndContinue}
-              className="bg-green-600 hover:bg-green-700 text-white shadow-sm"
+              className="flex-1 h-12 md:h-14 text-base font-medium bg-indigo-600 hover:bg-indigo-700 min-w-[44px] flex items-center justify-center gap-2"
             >
-              Accept & Continue
+              <span>Accept & Continue</span>
+              <ArrowRight className="w-5 h-5" />
             </Button>
           </div>
         </div>

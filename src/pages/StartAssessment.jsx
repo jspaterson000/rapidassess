@@ -77,16 +77,11 @@ export default function StartAssessment() {
                 pds_document_id: jobData.pds_document_id
               }
             }));
-            // Ensure we're on step 1 (Event Details)
-            setCurrentStep(1);
           } catch (error) {
             console.error("Error loading job:", error);
             // If job can't be loaded, go to job selection
             setCurrentStep(0);
           }
-        } else {
-          // No jobId provided, start at job selection
-          setCurrentStep(0);
         }
       } catch (e) {
         console.error("User not found");

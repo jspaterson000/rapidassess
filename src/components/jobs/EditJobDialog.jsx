@@ -344,9 +344,9 @@ export default function EditJobDialog({ open, onClose, onSubmit, job }) {
             <Button
               type="submit"
               className="bg-slate-800 hover:bg-slate-900 text-white"
-              disabled={isSubmitting}
+              disabled={false}
             >
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
+              Save Changes
             </Button>
           </DialogFooter>
         </form>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { UploadFile } from "@/api/integrations";
-import { Upload, FileText, ImageIcon, X, Loader2, ArrowLeft, ArrowRight, Trash2 } from 'lucide-react';
+import { Upload, FileText, ImageIcon, X, Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -79,7 +79,7 @@ function FileUploader({ title, description, icon: Icon, fileTypes, files, update
                   size="icon" 
                   variant="ghost" 
                   onClick={() => removeFile(index)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 flex-shrink-0"
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 flex-shrink-0 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0"
                   title="Remove file"
                 >
                   <X className="w-4 h-4" />

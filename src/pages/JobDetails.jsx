@@ -51,7 +51,7 @@ export default function JobDetailsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [showEditDialog, setShowEditDialog, ] = useState(false);
+    const [showEditDialog, setShowEditDialog] = useState(false);
     const [showAssignDialog, setShowAssignDialog] = useState(false);
     const [jobToBook, setJobToBook] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -533,7 +533,6 @@ export default function JobDetailsPage() {
                     onClose={() => setShowEditDialog(false)}
                     onSubmit={handleEditJob}
                     job={job}
-                    isSubmitting={isEditing}
                 />
             )}
 
