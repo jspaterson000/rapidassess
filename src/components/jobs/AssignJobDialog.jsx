@@ -27,13 +27,18 @@ export default function AssignJobDialog({ open, onClose, job, onAssignmentComple
   // Helper function to calculate distance using LLM
   const calculateDistance = async (assessor, targetJob) => {
     if (!assessor.base_location || !targetJob?.property_address) {
-        return { error: "Missing location data for distance calculation" };
+        return { distance_km: -1, travel_time_minutes: -1, error: "Missing location data" };
     }
 
     let startLocation = assessor.base_location;
     
     try {
-        const response = await InvokeLLM({
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Distance calculation timeout')), 8000)
+        );
+        
+        const llmPromise = InvokeLLM({
             prompt: `You are a travel calculation assistant. Calculate the driving distance and estimated travel time between these two Australian locations:
 
 Starting location: "${startLocation}"
@@ -63,13 +68,15 @@ Important:
             }
         });
         
+        const response = await Promise.race([llmPromise, timeoutPromise]);
+        
         if (response && typeof response.distance_km === 'number' && typeof response.travel_time_minutes === 'number') {
             return { distance_km: response.distance_km, travel_time_minutes: response.travel_time_minutes };
         }
-        return { error: "Could not calculate distance - invalid response" };
+        return { distance_km: -1, travel_time_minutes: -1, error: "Invalid response" };
     } catch (e) {
-        console.error(`Distance calculation failed for ${assessor.full_name}:`, e);
-        return { error: "AI error calculating distance" };
+        console.warn(`Distance calculation failed for ${assessor.full_name}:`, e.message);
+        return { distance_km: -1, travel_time_minutes: -1, error: "Calculation failed" };
     }
   };
 
@@ -106,7 +113,7 @@ Important:
       const details = {};
       const maxAssessmentsPerDay = companyData?.max_assessments_per_day || Infinity;
 
-      // Process assessors sequentially to avoid overwhelming the AI service
+      // Process assessors with better error handling and timeouts
       for (const assessor of potentialAssessors) {
         const jobsTodayCount = todayAssessmentsData.filter(
           assessment => assessment.assessor_id === assessor.id
@@ -116,17 +123,27 @@ Important:
           ? { status: 'Unavailable', reason: `Reached daily limit (${jobsTodayCount}/${maxAssessmentsPerDay})` }
           : { status: 'Available', reason: `${jobsTodayCount}/${maxAssessmentsPerDay} jobs today` };
 
+        // Set initial state for this assessor
+        details[assessor.id] = { 
+          availability, 
+          name: assessor.full_name, 
+          location: assessor.base_location,
+          distance_km: -1,
+          travel_time_minutes: -1,
+          error: "Calculating..."
+        };
+        setAssessorDetails({ ...details });
+
         try {
           const distanceData = await calculateDistance(assessor, job);
-          details[assessor.id] = { ...distanceData, availability, name: assessor.full_name, location: assessor.base_location };
-        } catch (error) {
-          console.error(`Failed to calculate distance for ${assessor.full_name}:`, error);
           details[assessor.id] = { 
-            error: "Distance calculation failed", 
+            ...distanceData, 
             availability, 
             name: assessor.full_name, 
             location: assessor.base_location 
           };
+        } catch (error) {
+          // Error already handled in calculateDistance function
         }
         
         // Update the UI progressively as each assessor is processed
@@ -383,20 +400,26 @@ Important:
                             <span className="text-red-500 text-xs">{details.error}</span>
                           ) : (
                             <>
-                              {details.distance_km !== -1 && details.distance_km !== undefined && (
+                              {details.distance_km > 0 && (
                                 <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded text-xs">
                                   <Car className="w-3 h-3 text-slate-400" />
                                   <span className="font-medium text-slate-700">{details.distance_km?.toFixed(1)} km</span>
                                 </div>
                               )}
-                              {details.travel_time_minutes !== -1 && details.travel_time_minutes !== undefined && (
+                              {details.travel_time_minutes > 0 && (
                                 <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded text-xs">
                                   <Clock className="w-3 h-3 text-slate-400" />
                                   <span className="font-medium text-slate-700">{Math.round(details.travel_time_minutes)} min</span>
                                 </div>
                               )}
-                              {details.distance_km === -1 && (
+                              {details.distance_km === -1 && details.error !== "Calculating..." && (
                                 <span className="text-amber-600 text-xs">Location unavailable</span>
+                              )}
+                              {details.error === "Calculating..." && (
+                                <div className="flex items-center gap-1 text-xs text-blue-600">
+                                  <div className="w-3 h-3 border border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                  <span>Calculating...</span>
+                                </div>
                               )}
                             </>
                           )}
