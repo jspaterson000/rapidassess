@@ -34,10 +34,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as DatePickerCalendar } from "@/components/ui/calendar";
 import OfflineSync from "@/components/offline/OfflineSync";
 import BookAppointmentDialog from "../components/jobs/BookAppointmentDialog";
 import DeclineJobDialog from "../components/jobs/DeclineJobDialog";
+import { JobTrendChart, PerformanceMetricsChart } from "@/components/analytics/AdvancedCharts";
 import { format, formatDistanceToNow, isToday, isTomorrow, isYesterday, isThisWeek, isWithinInterval, addDays, startOfWeek, endOfWeek, subWeeks, startOfDay, endOfDay } from 'date-fns';
 
 // Workflow Metrics Component - now receives user-filtered data
@@ -251,7 +252,7 @@ export default function Dashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Calendar
+          <DatePickerCalendar
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
